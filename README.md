@@ -37,7 +37,7 @@ npx serve .
 若使用 **Project site**（例如 `username.github.io/bloom-picker`），所有資源路徑皆為相對路徑，無需修改即可正常運作。
 
 ## 檔案結構
-
+０
 ```
 bloom-picker/
 ├── index.html      # 主頁
