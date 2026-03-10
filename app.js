@@ -82,6 +82,41 @@
     }
 
     /* ════════════════════════════════════════
+       WCAG Contrast Ratio
+       ════════════════════════════════════════ */
+
+    function srgbToLinear(channel) {
+        var c = channel / 255;
+        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    function relativeLuminance(r, g, b) {
+        return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
+    }
+
+    function contrastRatio(l1, l2) {
+        var lighter = Math.max(l1, l2);
+        var darker = Math.min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    function formatRatio(ratio) {
+        return ratio.toFixed(1) + ':1';
+    }
+
+    function wcagGrade(ratio, threshold) {
+        if (ratio >= threshold) return 'pass';
+        if (ratio >= threshold * 0.7) return 'warn';
+        return 'fail';
+    }
+
+    function wcagIcon(grade) {
+        if (grade === 'pass') return '✅';
+        if (grade === 'warn') return '⚠️';
+        return '❌';
+    }
+
+    /* ════════════════════════════════════════
        Hue Classification
        ════════════════════════════════════════ */
 
@@ -282,6 +317,43 @@
     }
 
     /* ════════════════════════════════════════
+       Single-Color Multi-Format Export
+       ════════════════════════════════════════ */
+
+    function exportSingleFormat(format) {
+        if (!current) return;
+        var c = current;
+        var rgb = hexToRgb(c.hex);
+        var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+        var text = '';
+
+        switch (format) {
+            case 'css':
+                text = '--color-' + c.name + ': ' + c.hex + ';';
+                break;
+            case 'scss':
+                text = '$' + c.name + ': ' + c.hex + ';';
+                break;
+            case 'rgb':
+                text = 'rgb(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ')';
+                break;
+            case 'hsl':
+                text = 'hsl(' + Math.round(hsl.h) + ', ' + Math.round(hsl.s) + '%, ' + Math.round(hsl.l) + '%)';
+                break;
+        }
+
+        if (text) {
+            navigator.clipboard.writeText(text).then(function () {
+                showToast('已複製 ' + text);
+            });
+        }
+
+        // Close dropdown
+        var dd = document.getElementById('export-dropdown');
+        if (dd) dd.classList.remove('open');
+    }
+
+    /* ════════════════════════════════════════
        Filtering (Hue + Search)
        ════════════════════════════════════════ */
 
@@ -308,20 +380,30 @@
         var hex = c.hex;
         var rgb = hexToRgb(hex);
         var cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
+        var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
         document.getElementById('bg').style.backgroundColor = hex;
         document.getElementById('color-name').textContent = c.nameTW;
         document.getElementById('color-name-ja').textContent =
             c.nameJA ? c.nameJA + ' · ' + c.name : '';
 
+        // CMYK
         document.getElementById('c').textContent = cmyk.c;
         document.getElementById('m').textContent = cmyk.m;
         document.getElementById('y').textContent = cmyk.y;
         document.getElementById('k').textContent = cmyk.k;
+
+        // RGB
         document.getElementById('r').textContent = rgb.r;
         document.getElementById('g').textContent = rgb.g;
         document.getElementById('b').textContent = rgb.b;
 
+        // HSL
+        document.getElementById('h-val').textContent = Math.round(hsl.h) + '°';
+        document.getElementById('s-val').textContent = Math.round(hsl.s) + '%';
+        document.getElementById('l-val').textContent = Math.round(hsl.l) + '%';
+
+        // Hex
         var hexEl = document.getElementById('hex');
         if (hexEl) {
             hexEl.textContent = hex.slice(1).toUpperCase();
@@ -329,6 +411,9 @@
         }
 
         document.body.classList.toggle('light-bg', isLightColor(rgb.r, rgb.g, rgb.b));
+
+        // WCAG Contrast
+        renderWCAG(rgb);
 
         // Variations
         var varContainer = document.getElementById('variations');
@@ -364,6 +449,47 @@
             displayMain.offsetHeight;
             displayMain.style.animation = '';
         }
+    }
+
+    /* ════════════════════════════════════════
+       Render: WCAG Contrast Checker
+       ════════════════════════════════════════ */
+
+    function renderWCAG(rgb) {
+        var bgLum = relativeLuminance(rgb.r, rgb.g, rgb.b);
+        var whiteLum = relativeLuminance(255, 255, 255);
+        var blackLum = relativeLuminance(0, 0, 0);
+
+        var whiteRatio = contrastRatio(whiteLum, bgLum);
+        var blackRatio = contrastRatio(bgLum, blackLum);
+
+        // Update white text row
+        var whiteSample = document.getElementById('wcag-white-sample');
+        if (whiteSample && current) whiteSample.style.backgroundColor = current.hex;
+        document.getElementById('wcag-white-ratio').textContent = formatRatio(whiteRatio);
+
+        var whiteAaGrade = wcagGrade(whiteRatio, 4.5);
+        var whiteAaaGrade = wcagGrade(whiteRatio, 7);
+        var whiteAaEl = document.getElementById('wcag-white-aa');
+        var whiteAaaEl = document.getElementById('wcag-white-aaa');
+        whiteAaEl.textContent = wcagIcon(whiteAaGrade) + ' AA';
+        whiteAaEl.className = 'wcag-badge ' + whiteAaGrade;
+        whiteAaaEl.textContent = wcagIcon(whiteAaaGrade) + ' AAA';
+        whiteAaaEl.className = 'wcag-badge ' + whiteAaaGrade;
+
+        // Update black text row
+        var blackSample = document.getElementById('wcag-black-sample');
+        if (blackSample && current) blackSample.style.backgroundColor = current.hex;
+        document.getElementById('wcag-black-ratio').textContent = formatRatio(blackRatio);
+
+        var blackAaGrade = wcagGrade(blackRatio, 4.5);
+        var blackAaaGrade = wcagGrade(blackRatio, 7);
+        var blackAaEl = document.getElementById('wcag-black-aa');
+        var blackAaaEl = document.getElementById('wcag-black-aaa');
+        blackAaEl.textContent = wcagIcon(blackAaGrade) + ' AA';
+        blackAaEl.className = 'wcag-badge ' + blackAaGrade;
+        blackAaaEl.textContent = wcagIcon(blackAaaGrade) + ' AAA';
+        blackAaaEl.className = 'wcag-badge ' + blackAaaGrade;
     }
 
     /* ════════════════════════════════════════
@@ -570,6 +696,31 @@
         });
     }
 
+    function initExportDropdown() {
+        var btn = document.getElementById('export-format-btn');
+        var dd = document.getElementById('export-dropdown');
+        if (!btn || !dd) return;
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var isOpen = dd.classList.toggle('open');
+            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        dd.addEventListener('click', function (e) {
+            var opt = e.target.closest('.export-opt');
+            if (!opt) return;
+            e.stopPropagation();
+            exportSingleFormat(opt.getAttribute('data-format'));
+        });
+
+        // Close dropdown on outside click
+        document.addEventListener('click', function () {
+            dd.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        });
+    }
+
     /* ════════════════════════════════════════
        Helpers
        ════════════════════════════════════════ */
@@ -599,6 +750,7 @@
         initCopyHex();
         initLogo();
         initPalette();
+        initExportDropdown();
         renderPalette();
         renderColor(getColorFromHash());
     });

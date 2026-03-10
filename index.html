@@ -57,9 +57,41 @@
                         <span class="value-label">B</span>
                         <span id="b" class="value">—</span>
                     </div>
+                    <div class="value-row">
+                        <span class="value-label">H</span>
+                        <span id="h-val" class="value">—</span>
+                        <span class="value-label">S</span>
+                        <span id="s-val" class="value">—</span>
+                        <span class="value-label">L</span>
+                        <span id="l-val" class="value">—</span>
+                    </div>
                     <div class="value-row hex-row">
                         <span class="value-label">#</span>
                         <button type="button" id="hex" class="value value-hex" title="點擊複製色碼">—</button>
+                        <div class="export-dropdown-wrap">
+                            <button type="button" id="export-format-btn" class="export-format-btn" title="多格式匯出" aria-expanded="false">▾</button>
+                            <div class="export-dropdown" id="export-dropdown">
+                                <button type="button" class="export-opt" data-format="css">CSS 變數</button>
+                                <button type="button" class="export-opt" data-format="scss">SCSS 變數</button>
+                                <button type="button" class="export-opt" data-format="rgb">RGB</button>
+                                <button type="button" class="export-opt" data-format="hsl">HSL</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- WCAG Contrast Checker -->
+                <div class="wcag-checker" id="wcag-checker">
+                    <div class="wcag-row">
+                        <span class="wcag-sample wcag-white" id="wcag-white-sample">Aa</span>
+                        <span class="wcag-ratio" id="wcag-white-ratio">—</span>
+                        <span class="wcag-badge" id="wcag-white-aa" title="WCAG AA">AA —</span>
+                        <span class="wcag-badge" id="wcag-white-aaa" title="WCAG AAA">AAA —</span>
+                    </div>
+                    <div class="wcag-row">
+                        <span class="wcag-sample wcag-black" id="wcag-black-sample">Aa</span>
+                        <span class="wcag-ratio" id="wcag-black-ratio">—</span>
+                        <span class="wcag-badge" id="wcag-black-aa" title="WCAG AA">AA —</span>
+                        <span class="wcag-badge" id="wcag-black-aaa" title="WCAG AAA">AAA —</span>
                     </div>
                 </div>
             </div>

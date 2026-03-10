@@ -333,6 +333,168 @@ body.light-bg .color-values {
     border-radius: 6px;
 }
 
+/* Export format dropdown */
+.hex-row {
+    position: relative;
+}
+
+.export-dropdown-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.export-format-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.2rem 0.45rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    transition: all 0.15s;
+}
+
+.export-format-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+body.light-bg .export-format-btn {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.export-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    background: rgba(20, 20, 28, 0.92);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.3rem;
+    min-width: 8rem;
+    z-index: 30;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.export-dropdown.open {
+    display: flex;
+    flex-direction: column;
+}
+
+.export-opt {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: left;
+    padding: 0.45rem 0.7rem;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 0.7rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.12s;
+    white-space: nowrap;
+}
+
+.export-opt:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── WCAG Contrast Checker ── */
+.wcag-checker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.light-bg .wcag-checker {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(0, 0, 0, 0.04);
+}
+
+.wcag-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: "Outfit", sans-serif;
+    font-size: 0.7rem;
+}
+
+.wcag-sample {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+}
+
+.wcag-white {
+    color: #ffffff;
+}
+
+.wcag-black {
+    color: #000000;
+}
+
+.wcag-ratio {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    min-width: 3rem;
+}
+
+.wcag-badge {
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wcag-badge.pass {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+
+.wcag-badge.warn {
+    background: rgba(250, 204, 21, 0.15);
+    border-color: rgba(250, 204, 21, 0.3);
+    color: #fbbf24;
+}
+
+.wcag-badge.fail {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+body.light-bg .wcag-badge.pass {
+    color: #16a34a;
+}
+
+body.light-bg .wcag-badge.warn {
+    color: #b45309;
+}
+
+body.light-bg .wcag-badge.fail {
+    color: #dc2626;
+}
+
+
 /* ── Color Harmony ── */
 .harmony-section {
     width: 100%;
