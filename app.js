@@ -523,6 +523,102 @@
     }
 
     /* ════════════════════════════════════════
+       Download Palette as PNG
+       ════════════════════════════════════════ */
+
+    function downloadPalettePNG(palette) {
+        var W = 1200, H = 630;
+        var canvas = document.createElement('canvas');
+        canvas.width = W;
+        canvas.height = H;
+        var ctx = canvas.getContext('2d');
+
+        // Background
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, W, H);
+
+        // Title bar
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.fillRect(0, 0, W, 90);
+        ctx.font = '600 28px "Noto Sans TC", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(palette.emoji + '  ' + palette.label, 40, 48);
+
+        // Watermark
+        ctx.font = '400 16px "Outfit", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.textAlign = 'right';
+        ctx.fillText('Bloom Picker · 雅色', W - 40, 48);
+        ctx.textAlign = 'left';
+
+        // Color swatches
+        var count = palette.colors.length;
+        var swatchW = (W - 80 - (count - 1) * 16) / count;
+        var swatchH = 320;
+        var swatchY = 120;
+
+        palette.colors.forEach(function (c, i) {
+            var x = 40 + i * (swatchW + 16);
+
+            // Draw rounded swatch
+            var radius = 12;
+            ctx.beginPath();
+            ctx.moveTo(x + radius, swatchY);
+            ctx.lineTo(x + swatchW - radius, swatchY);
+            ctx.quadraticCurveTo(x + swatchW, swatchY, x + swatchW, swatchY + radius);
+            ctx.lineTo(x + swatchW, swatchY + swatchH - radius);
+            ctx.quadraticCurveTo(x + swatchW, swatchY + swatchH, x + swatchW - radius, swatchY + swatchH);
+            ctx.lineTo(x + radius, swatchY + swatchH);
+            ctx.quadraticCurveTo(x, swatchY + swatchH, x, swatchY + swatchH - radius);
+            ctx.lineTo(x, swatchY + radius);
+            ctx.quadraticCurveTo(x, swatchY, x + radius, swatchY);
+            ctx.closePath();
+            ctx.fillStyle = c.hex;
+            ctx.fill();
+
+            // Border
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Color name (TW)
+            var centerX = x + swatchW / 2;
+            ctx.textAlign = 'center';
+            ctx.font = '600 22px "Noto Sans TC", sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.92)';
+            ctx.fillText(c.nameTW, centerX, swatchY + swatchH + 36);
+
+            // Hex code
+            ctx.font = '500 16px "Outfit", sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.fillText(c.hex.toUpperCase(), centerX, swatchY + swatchH + 62);
+
+            // Romaji name
+            ctx.font = '400 13px "Outfit", sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.35)';
+            ctx.fillText(c.name, centerX, swatchY + swatchH + 82);
+        });
+
+        ctx.textAlign = 'left';
+
+        // Footer line
+        ctx.fillStyle = 'rgba(255,255,255,0.04)';
+        ctx.fillRect(0, H - 40, W, 40);
+        ctx.font = '400 12px "Outfit", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        ctx.textAlign = 'center';
+        ctx.fillText('Traditional Colors · 傳統色名 · 高貴優雅', W / 2, H - 15);
+
+        // Download
+        var link = document.createElement('a');
+        link.download = 'bloom-picker-' + palette.label + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('已下載 ' + palette.label + ' 色票');
+    }
+
+    /* ════════════════════════════════════════
        Render: Recommended Palettes
        ════════════════════════════════════════ */
 
@@ -567,7 +663,21 @@
             });
 
             header.appendChild(label);
-            header.appendChild(saveBtn);
+
+            // Action buttons wrapper
+            var actions = document.createElement('div');
+            actions.className = 'reco-actions';
+
+            var dlBtn = document.createElement('button');
+            dlBtn.className = 'reco-save-all';
+            dlBtn.textContent = '⬇ 下載 PNG';
+            dlBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                downloadPalettePNG(p);
+            });
+            actions.appendChild(dlBtn);
+            actions.appendChild(saveBtn);
+            header.appendChild(actions);
             card.appendChild(header);
 
             // Color strip

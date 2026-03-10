@@ -665,6 +665,12 @@ body.light-bg .reco-save-all {
     border-color: rgba(0, 0, 0, 0.1);
 }
 
+.reco-actions {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+}
+
 /* Color strip: 5 swatches side by side */
 .reco-strip {
     display: flex;
