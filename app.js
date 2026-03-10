@@ -371,6 +371,246 @@
     function applyFilters() { renderList(getFilteredColors()); }
 
     /* ════════════════════════════════════════
+       Recommended Palettes: Curated Data
+       ════════════════════════════════════════ */
+
+    // Hand-curated classic groupings per hue family.
+    // Each entry: { label, emoji, names: [5 traditional color names] }
+    var CURATED_PALETTES = {
+        red: [
+            { label: '緋紅繚亂', emoji: '🌺', names: ['suoh', 'beni', 'momo', 'sakura', 'shironeri'] },
+            { label: '夕陽餘暉', emoji: '🌅', names: ['akabeni', 'kohaku', 'kitsune', 'kitsurubami', 'hai'] }
+        ],
+        orange: [
+            { label: '秋楓燦爛', emoji: '🍂', names: ['daidai', 'kitsune', 'tobi', 'rikyu_nezumi', 'byakuroku'] },
+            { label: '暖陽金秋', emoji: '🍁', names: ['kohaku', 'kuchinashi', 'karakurenai', 'matsubairo', 'gofun'] }
+        ],
+        yellow: [
+            { label: '金穗搖曳', emoji: '🌾', names: ['kitsurubami', 'kariyasu', 'ukon', 'wasurenagusa', 'shironeri'] },
+            { label: '琥珀蜜光', emoji: '🍯', names: ['kohaku', 'tamago', 'nanohana', 'chigusa', 'nibi'] }
+        ],
+        green: [
+            { label: '翠竹清風', emoji: '🎋', names: ['moegi', 'matsubairo', 'wakatake', 'byakuroku', 'shironeri'] },
+            { label: '深山幽谷', emoji: '🌲', names: ['tokiwa', 'sensaicha', 'aotake', 'rikyucha', 'sunezumi'] }
+        ],
+        cyan: [
+            { label: '碧海晴空', emoji: '🌊', names: ['asagi', 'mizuasagi', 'byakugun', 'noshimehana', 'gofun'] },
+            { label: '湖光山色', emoji: '🏞️', names: ['seiji', 'rokusho', 'chigusa', 'wasurenagusa', 'hai'] }
+        ],
+        blue: [
+            { label: '藍染物語', emoji: '🧵', names: ['gunjyo', 'ruri', 'hanada', 'byakugun', 'shironeri'] },
+            { label: '星夜深邃', emoji: '🌌', names: ['kon', 'tetsukon', 'rurikon', 'fujimurasaki', 'gofun'] }
+        ],
+        purple: [
+            { label: '紫藤花語', emoji: '🪻', names: ['fuji', 'fujimurasaki', 'shion', 'usubeni', 'gofun'] },
+            { label: '宮廷典雅', emoji: '👘', names: ['murasaki', 'kokimurasaki', 'sumire', 'sakura', 'shironeri'] }
+        ],
+        neutral: [
+            { label: '水墨寫意', emoji: '🖌️', names: ['sunezumi', 'nibi', 'hai', 'ginnezumi', 'shironeri'] },
+            { label: '侘寂之美', emoji: '🏯', names: ['rikyucha', 'sensaicha', 'rikyu_nezumi', 'gofun', 'keshizumi'] }
+        ]
+    };
+
+    /* ════════════════════════════════════════
+       Recommended Palettes: Algorithm
+       ════════════════════════════════════════ */
+
+    function findNearestExcluding(targetHex, excludeNames) {
+        var best = null, bestDist = Infinity;
+        colors.forEach(function (c) {
+            if (excludeNames.indexOf(c.name) !== -1) return;
+            var d = colorDistance(targetHex, c.hex);
+            if (d < bestDist) { bestDist = d; best = c; }
+        });
+        return best;
+    }
+
+    function generateUIPalette(hex) {
+        // Generate a UI-oriented palette: primary, background, text, accent, secondary
+        var rgb = hexToRgb(hex);
+        var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+        var h = hsl.h, s = hsl.s;
+        var used = [];
+
+        // Primary = current color
+        var primary = findNearestTraditionalColor(hex);
+        used.push(primary.name);
+
+        // Background = very light version
+        var bgC = hslToRgb(h, Math.max(s * 0.3, 5), 95);
+        var background = findNearestExcluding(rgbToHex(bgC.r, bgC.g, bgC.b), used);
+        used.push(background.name);
+
+        // Text = very dark version
+        var textC = hslToRgb(h, Math.max(s * 0.2, 5), 12);
+        var textColor = findNearestExcluding(rgbToHex(textC.r, textC.g, textC.b), used);
+        used.push(textColor.name);
+
+        // Accent = complementary hue, vivid
+        var accentC = hslToRgb((h + 180) % 360, Math.min(s * 1.2, 85), 50);
+        var accent = findNearestExcluding(rgbToHex(accentC.r, accentC.g, accentC.b), used);
+        used.push(accent.name);
+
+        // Secondary = analogous, slightly muted
+        var secC = hslToRgb((h + 40) % 360, s * 0.7, 55);
+        var secondary = findNearestExcluding(rgbToHex(secC.r, secC.g, secC.b), used);
+        used.push(secondary.name);
+
+        return {
+            label: '介面配色', emoji: '🖥️',
+            colors: [primary, background, textColor, accent, secondary]
+        };
+    }
+
+    function generateCreativePalette(hex) {
+        // Generate an artistic palette: warm-cold contrast with variety
+        var rgb = hexToRgb(hex);
+        var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+        var h = hsl.h, s = hsl.s, l = hsl.l;
+        var used = [];
+
+        var primary = findNearestTraditionalColor(hex);
+        used.push(primary.name);
+
+        // Warm accent
+        var warmC = hslToRgb((h + 150) % 360, Math.min(s + 15, 80), Math.max(l - 10, 35));
+        var warm = findNearestExcluding(rgbToHex(warmC.r, warmC.g, warmC.b), used);
+        used.push(warm.name);
+
+        // Cool contrast
+        var coolC = hslToRgb((h + 210) % 360, Math.min(s + 10, 75), Math.min(l + 5, 65));
+        var cool = findNearestExcluding(rgbToHex(coolC.r, coolC.g, coolC.b), used);
+        used.push(cool.name);
+
+        // Dark anchor
+        var darkC = hslToRgb((h + 20) % 360, s * 0.4, 18);
+        var dark = findNearestExcluding(rgbToHex(darkC.r, darkC.g, darkC.b), used);
+        used.push(dark.name);
+
+        // Light highlight
+        var lightC = hslToRgb((h - 15 + 360) % 360, Math.max(s * 0.5, 10), 88);
+        var light = findNearestExcluding(rgbToHex(lightC.r, lightC.g, lightC.b), used);
+        used.push(light.name);
+
+        return {
+            label: '創意配色', emoji: '🎨',
+            colors: [primary, warm, cool, dark, light]
+        };
+    }
+
+    function generateRecommendedPalettes(hex) {
+        var hueFamily = classifyHue(hex);
+        var curated = CURATED_PALETTES[hueFamily] || CURATED_PALETTES['neutral'];
+
+        // Pick the curated palette whose first color is closest to the selected
+        var bestCurated = curated.map(function (p) {
+            var resolved = p.names.map(function (n) {
+                return colors.find(function (c) { return c.name === n; });
+            }).filter(Boolean);
+            return { label: p.label, emoji: p.emoji, colors: resolved };
+        });
+
+        // Generate 2 curated + 2 algorithmic = 4 total
+        var uiPalette = generateUIPalette(hex);
+        var creativePalette = generateCreativePalette(hex);
+
+        return [
+            bestCurated[0],
+            uiPalette,
+            bestCurated[1],
+            creativePalette
+        ].filter(function (p) { return p && p.colors && p.colors.length >= 5; });
+    }
+
+    /* ════════════════════════════════════════
+       Render: Recommended Palettes
+       ════════════════════════════════════════ */
+
+    function renderPaletteReco(hex) {
+        var grid = document.getElementById('palette-reco-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        var palettes = generateRecommendedPalettes(hex);
+        palettes.forEach(function (p) {
+            var card = document.createElement('div');
+            card.className = 'reco-card';
+
+            // Header row: emoji + label + save-all button
+            var header = document.createElement('div');
+            header.className = 'reco-card-header';
+
+            var label = document.createElement('span');
+            label.className = 'reco-label';
+            label.textContent = p.emoji + ' ' + p.label;
+
+            var saveBtn = document.createElement('button');
+            saveBtn.className = 'reco-save-all';
+            saveBtn.textContent = '+ 收藏整組';
+            saveBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var added = 0;
+                p.colors.forEach(function (c) {
+                    if (!isFavorite(c.name)) {
+                        favorites.push(c.name);
+                        added++;
+                    }
+                });
+                if (added > 0) {
+                    saveFavorites();
+                    renderPalette();
+                    updateFavoriteButtons();
+                    showToast('已加入 ' + added + ' 色到調色盤');
+                } else {
+                    showToast('這組色票已全部收藏');
+                }
+            });
+
+            header.appendChild(label);
+            header.appendChild(saveBtn);
+            card.appendChild(header);
+
+            // Color strip
+            var strip = document.createElement('div');
+            strip.className = 'reco-strip';
+
+            p.colors.forEach(function (c) {
+                var cell = document.createElement('div');
+                cell.className = 'reco-strip-cell';
+                cell.style.backgroundColor = c.hex;
+                cell.setAttribute('data-hex', c.hex);
+                var cellRgb = hexToRgb(c.hex);
+                cell.style.color = isLightColor(cellRgb.r, cellRgb.g, cellRgb.b)
+                    ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.9)';
+                cell.addEventListener('click', function () {
+                    window.location.hash = c.name;
+                    renderColor(c);
+                });
+                strip.appendChild(cell);
+            });
+            card.appendChild(strip);
+
+            // Color names row
+            var names = document.createElement('div');
+            names.className = 'reco-names';
+            p.colors.forEach(function (c) {
+                var nameCell = document.createElement('span');
+                nameCell.className = 'reco-name-cell';
+                nameCell.textContent = c.nameTW;
+                nameCell.title = c.nameTW + ' ' + c.hex;
+                nameCell.addEventListener('click', function () {
+                    window.location.hash = c.name;
+                    renderColor(c);
+                });
+                names.appendChild(nameCell);
+            });
+            card.appendChild(names);
+
+            grid.appendChild(card);
+        });
+    }
+
+    /* ════════════════════════════════════════
        Render: Main Color Display
        ════════════════════════════════════════ */
 
@@ -435,6 +675,9 @@
 
         // Color Harmony
         renderHarmony(hex);
+
+        // Recommended Palettes
+        renderPaletteReco(hex);
 
         // Active state in list
         document.querySelectorAll('.color-list a').forEach(function (a) {

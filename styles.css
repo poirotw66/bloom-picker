@@ -194,7 +194,7 @@ body.light-bg .search-icon {
 }
 
 /* ── Main ── */
- .main {
+.main {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -205,7 +205,7 @@ body.light-bg .search-icon {
 }
 
 /* ── Color Display ── */
- .color-display {
+.color-display {
     text-align: center;
     margin-bottom: 2rem;
     display: flex;
@@ -588,6 +588,160 @@ body.light-bg .harmony-swatch {
     margin-top: 0.15rem;
 }
 
+/* ── Recommended Palettes ── */
+.palette-reco {
+    width: 100%;
+    max-width: 42rem;
+    margin-top: 1rem;
+}
+
+.palette-reco-title {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-align: center;
+    opacity: 0.7;
+    margin: 0 0 0.75rem;
+}
+
+.palette-reco-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.reco-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.75rem;
+    backdrop-filter: blur(8px);
+    transition: all var(--transition-ui);
+}
+
+.reco-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+body.light-bg .reco-card {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.reco-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.reco-label {
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+}
+
+.reco-save-all {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: inherit;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 0.58rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all var(--transition-ui);
+}
+
+.reco-save-all:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+body.light-bg .reco-save-all {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Color strip: 5 swatches side by side */
+.reco-strip {
+    display: flex;
+    gap: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.35rem;
+    height: 2.2rem;
+}
+
+.reco-strip-cell {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+    transition: flex var(--transition-ui);
+    min-width: 0;
+}
+
+.reco-strip-cell:hover {
+    flex: 1.5;
+}
+
+.reco-strip-cell::after {
+    content: attr(data-hex);
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "Outfit", sans-serif;
+    font-size: 0.48rem;
+    color: inherit;
+    opacity: 0;
+    transition: opacity 0.12s;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.reco-strip-cell:hover::after {
+    opacity: 1;
+}
+
+/* Color names row */
+.reco-names {
+    display: flex;
+    gap: 0.15rem;
+}
+
+.reco-name-cell {
+    flex: 1;
+    text-align: center;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.02em;
+    opacity: 0.75;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.reco-name-cell:hover {
+    opacity: 1;
+}
+
+@media (max-width: 640px) {
+    .palette-reco-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 960px) {
+    .palette-reco {
+        max-width: none;
+    }
+}
+
 /* ── Hue Filter Bar ── */
 .hue-filters {
     display: flex;
@@ -653,7 +807,7 @@ body.light-bg .hue-dot {
 }
 
 /* ── Color List (colored tiles) ── */
- .color-nav {
+.color-nav {
     max-width: 95vw;
     padding: 1rem;
 }
@@ -1103,6 +1257,9 @@ body.light-bg .harmony-title,
 body.light-bg .harmony-type,
 body.light-bg .harmony-name,
 body.light-bg .harmony-hex,
+body.light-bg .palette-reco-title,
+body.light-bg .reco-label,
+body.light-bg .reco-name-cell,
 body.light-bg .variation-item::after {
     color: #0f172a;
 }
@@ -1120,6 +1277,9 @@ body:not(.light-bg) .harmony-title,
 body:not(.light-bg) .harmony-type,
 body:not(.light-bg) .harmony-name,
 body:not(.light-bg) .harmony-hex,
+body:not(.light-bg) .palette-reco-title,
+body:not(.light-bg) .reco-label,
+body:not(.light-bg) .reco-name-cell,
 body:not(.light-bg) .variation-item::after {
     color: rgba(255, 255, 255, 0.98);
 }
