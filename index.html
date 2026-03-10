@@ -7,7 +7,7 @@
     <meta name="description" content="Traditional colors with Taiwanese elegant names. 傳統色名，台灣口語，高貴優雅。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -24,7 +24,7 @@
             </div>
         </div>
         <p class="tagline">傳統色名 · 台灣口語 · 高貴優雅</p>
-        
+
         <div class="search-container">
             <input type="text" id="search-input" placeholder="搜尋顏色 (名/拼音)..." aria-label="搜尋顏色">
             <span class="search-icon">
@@ -63,17 +63,50 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="color-variations" id="variations">
-                <!-- Variations will be injected here -->
+
+            <div class="color-variations" id="variations"></div>
+
+            <!-- Color Harmony Section -->
+            <div class="harmony-section" id="harmony-section">
+                <h2 class="harmony-title">配色推薦</h2>
+                <div class="harmony-grid" id="harmony-grid"></div>
             </div>
+
             <div id="copy-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
         </section>
 
         <nav class="color-nav" aria-label="Color list">
+            <div class="hue-filters" id="hue-filters" role="tablist" aria-label="色系篩選">
+                <button type="button" class="hue-btn active" data-hue="all">全部</button>
+                <button type="button" class="hue-btn" data-hue="red"><span class="hue-dot" style="background:#CB1B45"></span>紅</button>
+                <button type="button" class="hue-btn" data-hue="orange"><span class="hue-dot" style="background:#E98B2A"></span>橙</button>
+                <button type="button" class="hue-btn" data-hue="yellow"><span class="hue-dot" style="background:#FFB11B"></span>黃</button>
+                <button type="button" class="hue-btn" data-hue="green"><span class="hue-dot" style="background:#227D51"></span>綠</button>
+                <button type="button" class="hue-btn" data-hue="cyan"><span class="hue-dot" style="background:#00896C"></span>青</button>
+                <button type="button" class="hue-btn" data-hue="blue"><span class="hue-dot" style="background:#005CAF"></span>藍</button>
+                <button type="button" class="hue-btn" data-hue="purple"><span class="hue-dot" style="background:#66327C"></span>紫</button>
+                <button type="button" class="hue-btn" data-hue="neutral"><span class="hue-dot" style="background:#828282"></span>灰</button>
+            </div>
             <ul id="color-list" class="color-list"></ul>
         </nav>
     </main>
+
+    <!-- Palette Drawer (Favorites) -->
+    <div class="palette-drawer" id="palette-drawer">
+        <div class="palette-header">
+            <button type="button" class="palette-toggle" id="palette-toggle" title="展開/收合調色盤">
+                <span class="palette-toggle-icon">♡</span>
+                <span class="palette-label">我的調色盤</span>
+                <span class="palette-count" id="palette-count">0</span>
+            </button>
+            <div class="palette-actions" id="palette-actions">
+                <button type="button" class="palette-action-btn" id="export-css" title="匯出為 CSS 變數">CSS</button>
+                <button type="button" class="palette-action-btn" id="export-json" title="匯出為 JSON">JSON</button>
+                <button type="button" class="palette-action-btn palette-clear" id="palette-clear" title="清除全部收藏">清除</button>
+            </div>
+        </div>
+        <div class="palette-colors" id="palette-colors"></div>
+    </div>
 
     <footer class="footer">
         <p>© Bloom Picker. Designed for Precision. Colors from Nippon Traditions.</p>
