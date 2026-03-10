@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雅色 · 傳統色 — 台灣口語 · 高貴優雅</title>
+    <meta name="description" content="Traditional colors with Taiwanese elegant names. 傳統色名，台灣口語，高貴優雅。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="bg" class="bg" aria-hidden="true"></div>
+
+    <header class="header">
+        <a href="#" class="logo" data-color="">雅色</a>
+        <p class="tagline">傳統色名 · 台灣口語 · 高貴優雅</p>
+    </header>
+
+    <main class="main">
+        <section class="color-display" aria-live="polite">
+            <h1 id="color-name" class="color-name">群青</h1>
+            <p id="color-name-ja" class="color-name-ja"></p>
+            <div class="color-values">
+                <div class="value-row">
+                    <span class="value-label">C</span>
+                    <span id="c" class="value">—</span>
+                    <span class="value-label">M</span>
+                    <span id="m" class="value">—</span>
+                    <span class="value-label">Y</span>
+                    <span id="y" class="value">—</span>
+                    <span class="value-label">K</span>
+                    <span id="k" class="value">—</span>
+                </div>
+                <div class="value-row">
+                    <span class="value-label">R</span>
+                    <span id="r" class="value">—</span>
+                    <span class="value-label">G</span>
+                    <span id="g" class="value">—</span>
+                    <span class="value-label">B</span>
+                    <span id="b" class="value">—</span>
+                </div>
+                <div class="value-row hex-row">
+                    <span class="value-label">#</span>
+                    <span id="hex" class="value value-hex" title="Click to copy">—</span>
+                </div>
+            </div>
+        </section>
+
+        <nav class="color-nav" aria-label="Color list">
+            <ul id="color-list" class="color-list"></ul>
+        </nav>
+    </main>
+
+    <footer class="footer">
+        <p>Optimized for Safari &amp; Chrome. Color data adapted from traditional Japanese colors.</p>
+    </footer>
+
+    <script src="data/colors.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

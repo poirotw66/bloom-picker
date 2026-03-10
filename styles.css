@@ -1,0 +1,234 @@
+/* 雅色 · 傳統色 — Noble, elegant full-screen color experience */
+
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-bg: 1.2s var(--ease-out-expo);
+    --transition-ui: 0.4s ease;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: clamp(14px, 2vw, 18px);
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Noto Serif TC", "Zen Old Mincho", serif;
+    color: #1a1a1a;
+    overflow-x: hidden;
+}
+
+/* Full-screen background layer */
+.bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: #51a8dd;
+    transition: background-color var(--transition-bg);
+}
+
+/* Header */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: 1.25rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity var(--transition-ui);
+}
+
+.logo:hover {
+    opacity: 0.85;
+}
+
+.tagline {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    opacity: 0.9;
+}
+
+/* Main content */
+.main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 6rem 2rem 4rem;
+}
+
+/* Color display block */
+.color-display {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.color-name {
+    margin: 0 0 0.35em;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+}
+
+.color-name-ja {
+    margin: 0 0 1.5rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    opacity: 0.88;
+}
+
+.color-values {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.value-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    opacity: 0.85;
+    min-width: 1.2em;
+}
+
+.value {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.9rem;
+    min-width: 2.2em;
+}
+
+.value-hex {
+    cursor: pointer;
+    letter-spacing: 0.05em;
+}
+
+.value-hex:hover {
+    text-decoration: underline;
+}
+
+.hex-row {
+    margin-top: 0.25rem;
+}
+
+/* Color list navigation */
+.color-nav {
+    max-width: 90vw;
+    max-height: 42vh;
+    overflow: hidden;
+}
+
+.color-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    justify-content: center;
+}
+
+.color-list li {
+    flex: 0 0 auto;
+}
+
+.color-list a {
+    display: block;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.color-list a:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.color-list a[aria-current="true"] {
+    background-color: rgba(255, 255, 255, 0.35);
+    font-weight: 600;
+}
+
+/* Footer */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 2rem;
+    text-align: center;
+}
+
+.footer p {
+    margin: 0;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    opacity: 0.8;
+}
+
+/* Contrast: when background is light, use dark text */
+body.light-bg .color-name,
+body.light-bg .color-name-ja,
+body.light-bg .value,
+body.light-bg .value-label,
+body.light-bg .tagline,
+body.light-bg .logo,
+body.light-bg .footer p {
+    color: #1a1a1a;
+}
+
+body.light-bg .color-list a:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-bg .color-list a[aria-current="true"] {
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Default: when background is dark, use light text */
+body:not(.light-bg) .color-name,
+body:not(.light-bg) .color-name-ja,
+body:not(.light-bg) .value,
+body:not(.light-bg) .value-label,
+body:not(.light-bg) .tagline,
+body:not(.light-bg) .logo,
+body:not(.light-bg) .footer p {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+body:not(.light-bg) .color-list a {
+    color: rgba(255, 255, 255, 0.9);
+}
