@@ -7,19 +7,20 @@
     <meta name="description" content="Traditional colors with Taiwanese elegant names. 傳統色名，台灣口語，高貴優雅。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <a href="#main-content" class="skip-link">跳至主要內容</a>
     <div id="bg" class="bg" aria-hidden="true"></div>
 
     <header class="header">
-        <a href="#" class="logo" data-color="">雅色</a>
+        <a href="#" class="logo" data-color="" aria-label="雅色，回到預設色">雅色</a>
         <p class="tagline">傳統色名 · 台灣口語 · 高貴優雅</p>
     </header>
 
-    <main class="main">
-        <section class="color-display" aria-live="polite">
+    <main id="main-content" class="main" role="main">
+        <section class="color-display" aria-live="polite" aria-atomic="true">
             <h1 id="color-name" class="color-name">群青</h1>
             <p id="color-name-ja" class="color-name-ja"></p>
             <div class="color-values">
@@ -43,9 +44,10 @@
                 </div>
                 <div class="value-row hex-row">
                     <span class="value-label">#</span>
-                    <span id="hex" class="value value-hex" title="Click to copy">—</span>
+                    <button type="button" id="hex" class="value value-hex" title="點擊複製色碼">—</button>
                 </div>
             </div>
+            <div id="copy-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
         </section>
 
         <nav class="color-nav" aria-label="Color list">

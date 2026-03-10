@@ -51,7 +51,11 @@
         document.getElementById('r').textContent = rgb.r;
         document.getElementById('g').textContent = rgb.g;
         document.getElementById('b').textContent = rgb.b;
-        document.getElementById('hex').textContent = hex.slice(1).toUpperCase();
+        var hexEl = document.getElementById('hex');
+        if (hexEl) {
+            hexEl.textContent = hex.slice(1).toUpperCase();
+            hexEl.setAttribute('aria-label', '複製 Hex 色碼 ' + hex.slice(1).toUpperCase());
+        }
 
         document.body.classList.toggle('light-bg', isLight(rgb.r, rgb.g, rgb.b));
 
@@ -94,14 +98,19 @@
 
     function initCopyHex() {
         var el = document.getElementById('hex');
+        var announcer = document.getElementById('copy-announcer');
         if (!el) return;
         el.addEventListener('click', function () {
-            var hex = current && current.hex ? current.hex : ('#' + el.textContent);
+            var hex = current && current.hex ? current.hex : ('#' + el.textContent.trim());
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(hex).then(function () {
                     var t = el.textContent;
-                    el.textContent = 'Copied';
-                    setTimeout(function () { el.textContent = t; }, 1200);
+                    el.textContent = '已複製';
+                    if (announcer) announcer.textContent = '已複製色碼 ' + hex;
+                    setTimeout(function () {
+                        el.textContent = t;
+                        if (announcer) announcer.textContent = '';
+                    }, 1200);
                 });
             }
         });
@@ -111,10 +120,21 @@
         renderColor(getColorFromHash());
     }
 
+    function initLogo() {
+        var logo = document.querySelector('.logo');
+        if (!logo) return;
+        logo.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.hash = '';
+            renderColor(defaultColor());
+        });
+    }
+
     window.addEventListener('hashchange', onHashChange);
     window.addEventListener('load', function () {
         initList();
         initCopyHex();
+        initLogo();
         onHashChange();
     });
 })();
