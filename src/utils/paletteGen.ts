@@ -226,8 +226,38 @@ export function generateGradientPalette(hex: string): RecommendedPalette {
 }
 
 /**
+ * Inject the active color into a curated palette.
+ * If the active color is already present, move it to the front.
+ * Otherwise replace the most distant color and put it first.
+ */
+function injectActiveColor(palette: RecommendedPalette, hex: string): RecommendedPalette {
+    const activeColor = findNearestTraditionalColor(hex);
+    const colors = [...palette.colors];
+    const existingIdx = colors.findIndex(c => c.name === activeColor.name);
+
+    if (existingIdx >= 0) {
+        // Already present — move to front
+        const [found] = colors.splice(existingIdx, 1);
+        colors.unshift(found);
+    } else {
+        // Replace the most distant color
+        let worstIdx = 0;
+        let worstDist = 0;
+        colors.forEach((c, i) => {
+            const d = colorDistance(hex, c.hex);
+            if (d > worstDist) { worstDist = d; worstIdx = i; }
+        });
+        colors.splice(worstIdx, 1);
+        colors.unshift(activeColor);
+    }
+
+    return { ...palette, colors };
+}
+
+/**
  * Find the best 2 curated palettes for a given hex,
  * ranked by how close the palette's average color distance is to the target.
+ * Each returned palette is guaranteed to contain the active color in slot 0.
  */
 function pickBestCurated(hex: string, allCurated: RecommendedPalette[]): RecommendedPalette[] {
     const scored = allCurated.map(p => {
@@ -235,7 +265,7 @@ function pickBestCurated(hex: string, allCurated: RecommendedPalette[]): Recomme
         return { palette: p, score: avgDist };
     });
     scored.sort((a, b) => a.score - b.score);
-    return scored.slice(0, 2).map(s => s.palette);
+    return scored.slice(0, 2).map(s => injectActiveColor(s.palette, hex));
 }
 
 export function generateRecommendedPalettes(hex: string): RecommendedPalette[] {
