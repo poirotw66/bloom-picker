@@ -229,11 +229,13 @@ body.light-bg .search-input {
 }
 
 .color-values {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1.5rem 2.25rem;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    gap: 1.25rem;
+    padding: 2rem 2.5rem;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     backdrop-filter: blur(12px);
@@ -248,10 +250,10 @@ body.light-bg .color-values {
 
 .value-row {
     display: flex;
-    align-items: baseline;
-    gap: 0.6rem 1.2rem;
-    flex-wrap: nowrap;
-    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 }
 
 .value-label {
@@ -263,9 +265,9 @@ body.light-bg .color-values {
 }
 
 .value {
-    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-family: "Noto Sans TC", sans-serif;
     font-variant-numeric: tabular-nums;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 500;
 }
 
@@ -346,32 +348,62 @@ body.light-bg .wcag-checker {
 .wcag-row {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
-    font-size: 0.7rem;
+    gap: 1.25rem;
+    font-family: "Noto Sans TC", sans-serif;
 }
 
 .wcag-sample {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.6rem;
-    height: 1.6rem;
-    border-radius: 4px;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 6px;
     font-weight: 700;
-    font-size: 0.65rem;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.wcag-white {
+    color: #ffffff !important;
+}
+
+.wcag-black {
+    color: #000000 !important;
 }
 
 .wcag-ratio {
-    font-weight: 600;
-    min-width: 3rem;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    min-width: 4.5rem;
+}
+
+.wcag-results {
+    display: flex;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.wcag-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .wcag-badge {
-    font-size: 0.58rem;
-    font-weight: 600;
-    padding: 0.15rem 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
     border-radius: 4px;
+    width: fit-content;
+}
+
+.wcag-desc {
+    font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
+    font-size: 0.65rem;
+    opacity: 0.65;
+    white-space: nowrap;
 }
 
 .wcag-badge.pass {

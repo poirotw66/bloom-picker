@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ColorData } from '../data/colors';
-import { hexToRgb, rgbToCmyk, rgbToHsl, isLightColor } from '../utils/colorConverter';
+import { hexToRgb, rgbToCmyk, rgbToHsl } from '../utils/colorConverter';
 import { relativeLuminance, contrastRatio, formatRatio, wcagGrade, wcagIcon } from '../utils/wcag';
 import { getVariations } from '../utils/paletteGen';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -101,22 +101,38 @@ export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast }) 
                     <div className="wcag-row">
                         <div className="wcag-sample wcag-white" style={{ backgroundColor: color.hex }}>Aa</div>
                         <span className="wcag-ratio">{formatRatio(ratioWhite)}</span>
-                        <span className={`wcag-badge ${wcagGrade(ratioWhite, 4.5)}`}>
-                            {wcagIcon(wcagGrade(ratioWhite, 4.5))} AA
-                        </span>
-                        <span className={`wcag-badge ${wcagGrade(ratioWhite, 7)}`}>
-                            {wcagIcon(wcagGrade(ratioWhite, 7))} AAA
-                        </span>
+                        <div className="wcag-results">
+                            <div className="wcag-item">
+                                <span className={`wcag-badge ${wcagGrade(ratioWhite, 4.5)}`}>
+                                    {wcagIcon(wcagGrade(ratioWhite, 4.5))} AA
+                                </span>
+                                <span className="wcag-desc">適合大文本 / 圖表</span>
+                            </div>
+                            <div className="wcag-item">
+                                <span className={`wcag-badge ${wcagGrade(ratioWhite, 7)}`}>
+                                    {wcagIcon(wcagGrade(ratioWhite, 7))} AAA
+                                </span>
+                                <span className="wcag-desc">適合所有大小文字</span>
+                            </div>
+                        </div>
                     </div>
                     <div className="wcag-row">
                         <div className="wcag-sample wcag-black" style={{ backgroundColor: color.hex }}>Aa</div>
                         <span className="wcag-ratio">{formatRatio(ratioBlack)}</span>
-                        <span className={`wcag-badge ${wcagGrade(ratioBlack, 4.5)}`}>
-                            {wcagIcon(wcagGrade(ratioBlack, 4.5))} AA
-                        </span>
-                        <span className={`wcag-badge ${wcagGrade(ratioBlack, 7)}`}>
-                            {wcagIcon(wcagGrade(ratioBlack, 7))} AAA
-                        </span>
+                        <div className="wcag-results">
+                            <div className="wcag-item">
+                                <span className={`wcag-badge ${wcagGrade(ratioBlack, 4.5)}`}>
+                                    {wcagIcon(wcagGrade(ratioBlack, 4.5))} AA
+                                </span>
+                                <span className="wcag-desc">適合大文本 / 圖表</span>
+                            </div>
+                            <div className="wcag-item">
+                                <span className={`wcag-badge ${wcagGrade(ratioBlack, 7)}`}>
+                                    {wcagIcon(wcagGrade(ratioBlack, 7))} AAA
+                                </span>
+                                <span className="wcag-desc">適合所有大小文字</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
