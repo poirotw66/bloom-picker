@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ColorData } from '../data/colors';
 import { hexToRgb, rgbToCmyk, rgbToHsl } from '../utils/colorConverter';
 import { relativeLuminance, contrastRatio, formatRatio, wcagGrade, wcagIcon } from '../utils/wcag';
@@ -12,6 +12,7 @@ interface ColorDetailProps {
 
 export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
     const rgb = hexToRgb(color.hex);
     const cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
     const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
@@ -38,6 +39,22 @@ export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast }) 
         copy(text);
         setDropdownOpen(false);
     };
+
+    const handleClickOutside = useCallback((event: MouseEvent) => {
+        if (!dropdownOpen) {
+            return;
+        }
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+            setDropdownOpen(false);
+        }
+    }, [dropdownOpen]);
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [handleClickOutside]);
 
     return (
         <div className="color-display">
@@ -82,7 +99,7 @@ export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast }) 
                     <span className="value-label">HEX</span>
                     <span className="value value-hex" onClick={() => copy(color.hex)}>{color.hex.replace('#', '')}</span>
 
-                    <div className="export-dropdown-wrap">
+                    <div className="export-dropdown-wrap" ref={dropdownRef}>
                         <button className="export-format-btn" onClick={() => setDropdownOpen(!dropdownOpen)}>
                             ▼ 格式
                         </button>

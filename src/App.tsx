@@ -84,6 +84,14 @@ const App: React.FC = () => {
         }
     }, []);
 
+    useEffect(() => {
+        if (activeColor) {
+            document.title = `${activeColor.nameTW} · Bloom Picker`;
+        } else {
+            document.title = 'Bloom Picker';
+        }
+    }, [activeColor]);
+
     const handleSelectColor = useCallback((c: ColorData) => {
         setActiveColor(c);
         window.location.hash = c.name;

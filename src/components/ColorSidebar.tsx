@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { TRADITIONAL_COLORS, ColorData } from '../data/colors';
 import { classifyHue } from '../utils/paletteGen';
-import { isLightColor, hexToRgb } from '../utils/colorConverter';
+import { hexToRgb } from '../utils/colorConverter';
+import { relativeLuminance, contrastRatio } from '../utils/wcag';
 
 interface ColorSidebarProps {
     onSelect: (color: ColorData) => void;
@@ -67,14 +68,17 @@ export const ColorSidebar: React.FC<ColorSidebarProps> = ({ onSelect, activeColo
             <ul className="color-list">
                 {filteredColors.map(c => {
                     const rgb = hexToRgb(c.hex);
-                    const isLight = isLightColor(rgb.r, rgb.g, rgb.b);
+                    const bgLum = relativeLuminance(rgb.r, rgb.g, rgb.b);
+                    const ratioWhite = contrastRatio(1.0, bgLum);
+                    const ratioBlack = contrastRatio(0.0, bgLum);
+                    const useDarkText = ratioBlack > ratioWhite;
                     return (
                         <li key={c.name}>
                             <div
                                 className={`color-card ${activeColor?.name === c.name ? 'active' : ''}`}
                                 style={{
                                     backgroundColor: c.hex,
-                                    color: isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.9)'
+                                    color: useDarkText ? 'rgba(15,23,42,0.9)' : 'rgba(255,255,255,0.9)'
                                 }}
                                 onClick={() => onSelect(c)}
                             >
