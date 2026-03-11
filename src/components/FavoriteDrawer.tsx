@@ -29,13 +29,11 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
         .map((name) => TRADITIONAL_COLORS.find((color) => color.name === name))
         .filter((color): color is ColorData => !!color);
 
-    const handleDragStart = (name: string, event: React.DragEvent<HTMLDivElement>) => {
-        event.dataTransfer.effectAllowed = 'move';
+    const handleDragStart = (name: string) => {
         setDraggingName(name);
     };
 
-    const handleDragOver = (targetName: string, event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault();
+    const handleDragOver = (targetName: string) => {
         if (!draggingName || draggingName === targetName) {
             return;
         }
@@ -125,8 +123,11 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
                                 transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                                 className="palette-item"
                                 draggable
-                                onDragStart={(event) => handleDragStart(color.name, event)}
-                                onDragOver={(event) => handleDragOver(color.name, event)}
+                                onDragStart={() => handleDragStart(color.name)}
+                                onDragOver={(event) => {
+                                    event.preventDefault();
+                                    handleDragOver(color.name);
+                                }}
                                 onDragEnd={handleDragEnd}
                                 onClick={() => onSelectColor(color)}
                             >
