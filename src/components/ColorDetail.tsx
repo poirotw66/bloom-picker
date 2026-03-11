@@ -2,21 +2,29 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ColorData } from '../data/colors';
 import { hexToRgb, rgbToCmyk, rgbToHsl } from '../utils/colorConverter';
 import { relativeLuminance, contrastRatio, formatRatio, wcagGrade, wcagIcon } from '../utils/wcag';
-import { getVariations } from '../utils/paletteGen';
+import { getVariations, findNearestTraditionalColor } from '../utils/paletteGen';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ColorDetailProps {
     color: ColorData;
     onShowToast: (msg: string) => void;
+    onSelectColor: (color: ColorData) => void;
 }
 
-export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast }) => {
+const COLOR_CAPTIONS: Record<string, string> = {
+    momo: '「 微雨乍晴的桃花頰，帶著初戀還未說出口的薄紅。 」',
+};
+
+export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast, onSelectColor }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const rgb = hexToRgb(color.hex);
     const cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
     const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-    const variations = getVariations(color.hex);
+    const variations = getVariations(color.hex).map((hexValue) => ({
+        hex: hexValue,
+        nearest: findNearestTraditionalColor(hexValue),
+    }));
 
     const whiteLum = 1.0;
     const blackLum = 0.0;
@@ -69,17 +77,29 @@ export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast }) 
                 >
                     <h1 className="color-name">{color.nameTW}</h1>
                     <p className="color-name-ja">{color.nameJA} · {color.name}</p>
+                    {COLOR_CAPTIONS[color.name] && (
+                        <p className="color-caption">
+                            {COLOR_CAPTIONS[color.name]}
+                        </p>
+                    )}
 
-                    <div className="color-variations">
-                        {variations.map(v => (
-                            <div
-                                key={v}
-                                className="variation-item"
-                                style={{ backgroundColor: v }}
-                                data-hex={v}
-                                onClick={() => copy(v)}
-                            />
-                        ))}
+                    <div className="variation-section">
+                        <p className="variation-heading">相似顏色</p>
+                        <div className="color-variations">
+                            {variations.map((swatch) => (
+                                <div key={swatch.hex} className="variation-item-wrap">
+                                    <div
+                                        className="variation-item"
+                                        style={{ backgroundColor: swatch.hex }}
+                                        data-hex={swatch.hex}
+                                        onClick={() => onSelectColor(swatch.nearest)}
+                                    />
+                                    <span className="variation-label">
+                                        {swatch.nearest.nameTW}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </motion.div>
             </AnimatePresence>

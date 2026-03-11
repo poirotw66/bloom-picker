@@ -116,7 +116,11 @@ const App: React.FC = () => {
                 <div className="content-area" style={{ flex: 1 }}>
                     {activeColor && (
                         <>
-                            <ColorDetail color={activeColor} onShowToast={showToast} />
+                            <ColorDetail
+                                color={activeColor}
+                                onShowToast={showToast}
+                                onSelectColor={handleSelectColor}
+                            />
                             <PaletteReco
                                 baseHex={activeColor.hex}
                                 onSelectColor={handleSelectColor}
