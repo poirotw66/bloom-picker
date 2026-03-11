@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { TRADITIONAL_COLORS, ColorData } from './data/colors';
 import { Header } from './components/Header';
 import { ColorSidebar } from './components/ColorSidebar';
@@ -6,12 +6,74 @@ import { ColorDetail } from './components/ColorDetail';
 import { PaletteReco } from './components/PaletteReco';
 import { FavoriteDrawer } from './components/FavoriteDrawer';
 import { useFavorites } from './hooks/useFavorites';
+import { hexToRgb } from './utils/colorConverter';
+import { relativeLuminance, contrastRatio } from './utils/wcag';
 import './App.css';
 
+/**
+ * Compute adaptive UI theme tokens based on WCAG contrast ratios.
+ * Compares white and black text against the given background color,
+ * then selects the one with higher contrast to ensure readability.
+ */
+function computeThemeTokens(hex: string): Record<string, string> {
+    const { r, g, b } = hexToRgb(hex);
+    const bgLum = relativeLuminance(r, g, b);
+    const ratioWhite = contrastRatio(1.0, bgLum);
+    const ratioBlack = contrastRatio(0.0, bgLum);
+
+    // Use whichever text color provides better WCAG contrast
+    const useDarkText = ratioBlack > ratioWhite;
+
+    if (useDarkText) {
+        return {
+            '--ui-text': 'rgba(15, 23, 42, 0.95)',
+            '--ui-text-secondary': 'rgba(15, 23, 42, 0.65)',
+            '--ui-text-muted': 'rgba(15, 23, 42, 0.45)',
+            '--ui-border': 'rgba(0, 0, 0, 0.1)',
+            '--ui-border-hover': 'rgba(0, 0, 0, 0.2)',
+            '--ui-bg': 'rgba(0, 0, 0, 0.04)',
+            '--ui-bg-hover': 'rgba(0, 0, 0, 0.08)',
+            '--ui-card-bg': 'rgba(255, 255, 255, 0.4)',
+            '--ui-card-border': 'rgba(0, 0, 0, 0.05)',
+            '--ui-sidebar-bg': 'rgba(255, 255, 255, 0.3)',
+            '--ui-btn-bg': 'rgba(0, 0, 0, 0.06)',
+            '--ui-btn-bg-active': 'rgba(0, 0, 0, 0.12)',
+            '--ui-icon-hover-bg': 'rgba(0, 0, 0, 0.05)',
+            '--ui-hex-bg': 'rgba(0, 0, 0, 0.06)',
+            '--ui-wcag-bg': 'rgba(0, 0, 0, 0.04)',
+            '--ui-theme': 'light',
+        };
+    }
+
+    return {
+        '--ui-text': 'rgba(255, 255, 255, 0.95)',
+        '--ui-text-secondary': 'rgba(255, 255, 255, 0.7)',
+        '--ui-text-muted': 'rgba(255, 255, 255, 0.45)',
+        '--ui-border': 'rgba(255, 255, 255, 0.15)',
+        '--ui-border-hover': 'rgba(255, 255, 255, 0.3)',
+        '--ui-bg': 'rgba(255, 255, 255, 0.08)',
+        '--ui-bg-hover': 'rgba(255, 255, 255, 0.15)',
+        '--ui-card-bg': 'rgba(255, 255, 255, 0.15)',
+        '--ui-card-border': 'rgba(255, 255, 255, 0.1)',
+        '--ui-sidebar-bg': 'rgba(255, 255, 255, 0.12)',
+        '--ui-btn-bg': 'rgba(255, 255, 255, 0.08)',
+        '--ui-btn-bg-active': 'rgba(255, 255, 255, 0.35)',
+        '--ui-icon-hover-bg': 'rgba(255, 255, 255, 0.15)',
+        '--ui-hex-bg': 'rgba(255, 255, 255, 0.2)',
+        '--ui-wcag-bg': 'rgba(255, 255, 255, 0.08)',
+        '--ui-theme': 'dark',
+    };
+}
+
 const App: React.FC = () => {
-    const [activeColor, setActiveColor] = useState<ColorData>(TRADITIONAL_COLORS[191]); // Default to gunjyo (群青) or similar
+    const [activeColor, setActiveColor] = useState<ColorData>(TRADITIONAL_COLORS[191]);
     const { favorites, toggleFavorite, isFavorite, setFavorites } = useFavorites();
     const [toast, setToast] = useState<string | null>(null);
+
+    const themeTokens = useMemo(
+        () => computeThemeTokens(activeColor.hex),
+        [activeColor.hex]
+    );
 
     // Sync hash with color
     useEffect(() => {
@@ -77,7 +139,10 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className={`app-container ${activeColor ? (isLight() ? 'light-bg' : '') : ''}`}>
+        <div
+            className="app-container"
+            style={themeTokens as React.CSSProperties}
+        >
             <div className="bg" style={{ backgroundColor: activeColor?.hex }}></div>
 
             <Header />
@@ -117,18 +182,6 @@ const App: React.FC = () => {
             {toast && <div className="export-toast">{toast}</div>}
         </div>
     );
-
-    function isLight() {
-        if (!activeColor) return false;
-        const { r, g, b } = hexToRgb(activeColor.hex);
-        return (0.299 * r + 0.587 * g + 0.114 * b) >= 160;
-    }
 };
-
-function hexToRgb(hex: string) {
-    const m = hex.replace(/^#/, '').match(/^([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
-    if (!m) return { r: 0, g: 0, b: 0 };
-    return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
-}
 
 export default App;
