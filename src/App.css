@@ -571,19 +571,21 @@ body.light-bg .wcag-checker {
 
 /* Color List */
 .color-nav {
+    display: flex;
+    flex-direction: column;
     max-width: 95vw;
-    padding: 1rem;
+    padding: 1.5rem;
 }
 
 .color-list {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0.5rem 0;
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
     justify-content: center;
-    max-height: 28vh;
+    flex: 1;
     overflow-y: auto;
 }
 
@@ -704,14 +706,22 @@ body.light-bg .wcag-checker {
         background: rgba(255, 255, 255, 0.12);
         border-radius: 18px;
         backdrop-filter: blur(16px);
+        position: sticky;
+        top: 6rem;
+        height: calc(100vh - 12rem);
+        display: flex;
+        flex-direction: column;
     }
 
     .color-list {
-        max-height: calc(100vh - 18rem);
+        max-height: none;
+        padding: 1rem 0;
+        flex: 1;
+        overflow-y: auto;
     }
 
     .color-display {
-        flex: 0 0 70%;
+        flex: 1;
         align-items: flex-start;
         text-align: left;
     }
