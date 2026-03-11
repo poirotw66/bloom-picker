@@ -24,18 +24,34 @@ const HUES = [
     { id: 'neutral', label: '灰', color: '#828282' }
 ];
 
+function normalizeLatin(value: string): string {
+    return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 export const ColorSidebar: React.FC<ColorSidebarProps> = ({ onSelect, activeColor, onToggleFavorite, isFavorite }) => {
     const [activeHue, setActiveHue] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredColors = useMemo(() => {
-        return TRADITIONAL_COLORS.filter(c => {
-            const hueMatch = activeHue === 'all' || classifyHue(c.hex) === activeHue;
-            const searchMatch = !searchTerm ||
-                c.nameTW.includes(searchTerm) ||
-                c.name.includes(searchTerm.toLowerCase()) ||
-                c.nameJA.includes(searchTerm);
-            return hueMatch && searchMatch;
+        if (!searchTerm) {
+            return TRADITIONAL_COLORS.filter(color => activeHue === 'all' || classifyHue(color.hex) === activeHue);
+        }
+
+        const rawTerm = searchTerm.trim();
+        const latinTerm = normalizeLatin(rawTerm);
+
+        return TRADITIONAL_COLORS.filter(color => {
+            const hueMatch = activeHue === 'all' || classifyHue(color.hex) === activeHue;
+            if (!hueMatch) {
+                return false;
+            }
+
+            const twMatch = color.nameTW.includes(rawTerm);
+            const latinName = normalizeLatin(color.name);
+            const latinMatch = latinTerm !== '' && (latinName.startsWith(latinTerm) || latinName.includes(latinTerm));
+            const jaMatch = color.nameJA.includes(rawTerm);
+
+            return twMatch || jaMatch || latinMatch;
         });
     }, [activeHue, searchTerm]);
 

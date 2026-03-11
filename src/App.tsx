@@ -75,6 +75,24 @@ const App: React.FC = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
 
+    const handleRandomColor = useCallback(() => {
+        const index = Math.floor(Math.random() * TRADITIONAL_COLORS.length);
+        const randomColor = TRADITIONAL_COLORS[index];
+        handleSelectColor(randomColor);
+    }, [handleSelectColor]);
+
+    const handleTodayColor = useCallback(() => {
+        const now = new Date();
+        const dayIndex = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
+        const index = ((dayIndex % TRADITIONAL_COLORS.length) + TRADITIONAL_COLORS.length) % TRADITIONAL_COLORS.length;
+        const todayColor = TRADITIONAL_COLORS[index];
+        handleSelectColor(todayColor);
+    }, [handleSelectColor]);
+
+    const handleReorderFavorites = useCallback((names: string[]) => {
+        setFavorites(names);
+    }, [setFavorites]);
+
     return (
         <div
             className="app-container"
@@ -82,7 +100,10 @@ const App: React.FC = () => {
         >
             <div className="bg" style={{ backgroundColor: activeColor?.hex }}></div>
 
-            <Header />
+            <Header
+                onRandomColor={handleRandomColor}
+                onTodayColor={handleTodayColor}
+            />
 
             <main className="main">
                 <ColorSidebar
@@ -114,6 +135,7 @@ const App: React.FC = () => {
                 onClear={clearFavorites}
                 onExportCSS={exportCSS}
                 onExportJSON={exportJSON}
+                onReorder={handleReorderFavorites}
             />
 
             {toast && <div className="export-toast">{toast}</div>}
