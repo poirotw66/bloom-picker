@@ -585,8 +585,6 @@ body.light-bg .wcag-checker {
     flex-wrap: wrap;
     gap: 0.35rem;
     justify-content: center;
-    flex: 1;
-    overflow-y: auto;
 }
 
 .color-card {
@@ -646,31 +644,182 @@ body.light-bg .wcag-checker {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 20;
-    background: rgba(20, 20, 25, 0.85);
-    backdrop-filter: blur(16px);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    transform: translateY(calc(100% - 2.6rem));
-    transition: transform 0.22s var(--ease-out);
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    transform: translateY(calc(100% - 3.2rem));
+    transition: transform 0.4s var(--ease-out-expo);
+    color: #fff;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
 }
 
 .palette-drawer.open {
     transform: translateY(0);
 }
 
+body.light-bg .palette-drawer {
+    background: rgba(255, 255, 255, 0.88);
+    color: #1a1a1a;
+    border-top-color: rgba(0, 0, 0, 0.08);
+}
+
 .palette-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.55rem 1.5rem;
+    padding: 0.75rem 2rem;
     cursor: pointer;
+    user-select: none;
+}
+
+.palette-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-family: "LXGW WenKai TC", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    padding: 0;
+}
+
+.palette-toggle-icon {
+    transition: transform 0.4s var(--ease-out);
+    opacity: 0.8;
+}
+
+.palette-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    font-family: "Noto Sans TC", sans-serif;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+body.light-bg .palette-count {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.palette-actions {
+    display: flex;
+    gap: 1.25rem;
+}
+
+.palette-action-btn {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    opacity: 0.65;
+    transition: all var(--transition-ui);
+    padding: 0.2rem 0;
+    border-bottom: 1px solid transparent;
+}
+
+.palette-action-btn:hover {
+    opacity: 1;
+    border-bottom-color: currentColor;
+}
+
+.palette-action-btn.palette-clear:hover {
+    color: #f87171;
+    border-bottom-color: #f87171;
 }
 
 .palette-colors {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.5rem 1.5rem 1rem;
+    gap: 1rem;
+    padding: 1rem 2rem 2.5rem;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.palette-empty {
+    width: 100%;
+    text-align: center;
+    padding: 3rem 0;
+    opacity: 0.4;
+    font-size: 0.85rem;
+    font-style: italic;
+    letter-spacing: 0.1em;
+}
+
+.palette-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition-ui);
+    min-width: 8rem;
+}
+
+body.light-bg .palette-item {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.palette-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+body.light-bg .palette-item:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.palette-swatch {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.palette-item-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: "LXGW WenKai TC", serif;
+    letter-spacing: 0.15em;
+    flex: 1;
+}
+
+.palette-remove {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: all var(--transition-ui);
+    padding: 0 0.2rem;
+    line-height: 1;
+}
+
+.palette-item:hover .palette-remove {
+    opacity: 0.6;
+}
+
+.palette-remove:hover {
+    opacity: 1 !important;
+    color: #f87171;
 }
 
 /* Toast */
@@ -692,7 +841,7 @@ body.light-bg .wcag-checker {
 @media (min-width: 960px) {
     .main {
         flex-direction: row;
-        align-items: stretch;
+        align-items: flex-start;
         justify-content: center;
         column-gap: 4rem;
         max-width: 1280px;
@@ -706,9 +855,6 @@ body.light-bg .wcag-checker {
         background: rgba(255, 255, 255, 0.12);
         border-radius: 18px;
         backdrop-filter: blur(16px);
-        position: sticky;
-        top: 6rem;
-        height: calc(100vh - 12rem);
         display: flex;
         flex-direction: column;
     }
@@ -716,8 +862,6 @@ body.light-bg .wcag-checker {
     .color-list {
         max-height: none;
         padding: 1rem 0;
-        flex: 1;
-        overflow-y: auto;
     }
 
     .color-display {

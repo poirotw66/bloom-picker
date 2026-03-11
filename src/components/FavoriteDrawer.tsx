@@ -11,6 +11,8 @@ interface FavoriteDrawerProps {
     onExportJSON: () => void;
 }
 
+import { motion, AnimatePresence } from 'framer-motion';
+
 export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
     favorites, onSelectColor, onRemoveFavorite, onClear, onExportCSS, onExportJSON
 }) => {
@@ -27,7 +29,7 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
                         className="palette-toggle-icon"
                         style={{ transform: isOpen ? 'rotate(180deg)' : 'none' }}
                     />
-                    我的調色盤
+                    <span>我的調色盤</span>
                     <span className="palette-count">{favorites.length}</span>
                 </button>
 
@@ -39,25 +41,44 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
             </div>
 
             <div className="palette-colors">
-                {favColors.length === 0 ? (
-                    <span className="palette-empty">點擊色塊上的 ♡ 加入收藏</span>
-                ) : (
-                    favColors.map(c => (
-                        <div key={c.name} className="palette-item" onClick={() => onSelectColor(c)}>
-                            <div className="palette-swatch" style={{ backgroundColor: c.hex }}></div>
-                            <span className="palette-item-name">{c.nameTW}</span>
-                            <button
-                                className="palette-remove"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onRemoveFavorite(c.name);
-                                }}
+                <AnimatePresence mode="popLayout">
+                    {favColors.length === 0 ? (
+                        <motion.span
+                            key="empty"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="palette-empty"
+                        >
+                            點擊色塊上的 ♡ 加入收藏
+                        </motion.span>
+                    ) : (
+                        favColors.map(c => (
+                            <motion.div
+                                layout
+                                key={c.name}
+                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.8, x: -20 }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                className="palette-item"
+                                onClick={() => onSelectColor(c)}
                             >
-                                ×
-                            </button>
-                        </div>
-                    ))
-                )}
+                                <div className="palette-swatch" style={{ backgroundColor: c.hex }}></div>
+                                <span className="palette-item-name">{c.nameTW}</span>
+                                <button
+                                    className="palette-remove"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onRemoveFavorite(c.name);
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </motion.div>
+                        ))
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
