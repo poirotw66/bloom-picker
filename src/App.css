@@ -146,7 +146,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 8rem 2rem 6rem;
+    padding: 4rem 2rem 6rem;
     padding-bottom: calc(6rem + var(--palette-height));
 }
 
@@ -812,7 +812,7 @@ body {
         column-gap: 4rem;
         max-width: 1280px;
         margin: 0 auto;
-        padding: 6rem 3rem;
+        padding: 3rem 3rem 6rem;
     }
 
     .color-nav {
