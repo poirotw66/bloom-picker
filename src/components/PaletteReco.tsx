@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ColorData } from '../data/colors';
 import { generateRecommendedPalettes, RecommendedPalette } from '../utils/paletteGen';
-import { isLightColor, hexToRgb } from '../utils/colorConverter';
+import { hexToRgb } from '../utils/colorConverter';
+import { relativeLuminance, contrastRatio } from '../utils/wcag';
 import { downloadPalettePNG } from '../utils/exportUtils';
 
 interface PaletteRecoProps {
@@ -12,7 +13,10 @@ interface PaletteRecoProps {
 }
 
 export const PaletteReco: React.FC<PaletteRecoProps> = ({ baseHex, onSelectColor, onAddAll, onShowToast }) => {
-    const palettes = generateRecommendedPalettes(baseHex);
+    const palettes = useMemo(
+        () => generateRecommendedPalettes(baseHex),
+        [baseHex],
+    );
 
     return (
         <section className="palette-reco">
@@ -55,19 +59,22 @@ const PaletteCard: React.FC<PaletteCardProps> = ({ palette, onSelectColor, onAdd
             </div>
 
             <div className="reco-strip">
-                {palette.colors.map((c, i) => {
-                    const rgb = hexToRgb(c.hex);
-                    const isLight = isLightColor(rgb.r, rgb.g, rgb.b);
+                {palette.colors.map((color, index) => {
+                    const rgb = hexToRgb(color.hex);
+                    const backgroundLuminance = relativeLuminance(rgb.r, rgb.g, rgb.b);
+                    const ratioWithWhite = contrastRatio(1.0, backgroundLuminance);
+                    const ratioWithBlack = contrastRatio(0.0, backgroundLuminance);
+                    const shouldUseDarkText = ratioWithBlack > ratioWithWhite;
                     return (
                         <div
-                            key={i}
+                            key={index}
                             className="reco-strip-cell"
                             style={{
-                                backgroundColor: c.hex,
-                                color: isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.8)'
+                                backgroundColor: color.hex,
+                                color: shouldUseDarkText ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.85)'
                             }}
-                            data-hex={c.hex}
-                            onClick={() => onSelectColor(c)}
+                            data-hex={color.hex}
+                            onClick={() => onSelectColor(color)}
                         />
                     );
                 })}
