@@ -160,21 +160,123 @@ export function generateCreativePalette(hex: string): RecommendedPalette {
     };
 }
 
+/**
+ * Generate a seasonal harmony palette using analogous + complementary split.
+ */
+export function generateSeasonalPalette(hex: string): RecommendedPalette {
+    const rgb = hexToRgb(hex);
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+    const { h, s, l } = hsl;
+    const used: string[] = [];
+
+    const primary = findNearestTraditionalColor(hex);
+    used.push(primary.name);
+
+    // Analogous warm neighbor
+    const warmC = hslToRgb((h + 30) % 360, Math.min(s * 1.1, 80), Math.min(l + 8, 70));
+    const warm = findNearestExcluding(rgbToHex(warmC.r, warmC.g, warmC.b), used);
+    used.push(warm.name);
+
+    // Analogous cool neighbor
+    const coolC = hslToRgb((h - 25 + 360) % 360, Math.min(s * 0.9, 70), Math.max(l - 5, 30));
+    const cool = findNearestExcluding(rgbToHex(coolC.r, coolC.g, coolC.b), used);
+    used.push(cool.name);
+
+    // Split-complementary 1
+    const splitC1 = hslToRgb((h + 150) % 360, Math.min(s * 0.8, 65), 55);
+    const split1 = findNearestExcluding(rgbToHex(splitC1.r, splitC1.g, splitC1.b), used);
+    used.push(split1.name);
+
+    // Neutral anchor
+    const neutralC = hslToRgb(h, Math.max(s * 0.15, 3), 90);
+    const neutral = findNearestExcluding(rgbToHex(neutralC.r, neutralC.g, neutralC.b), used);
+    used.push(neutral.name);
+
+    return {
+        label: '和風調和', emoji: '🎐',
+        colors: [primary, warm, cool, split1, neutral]
+    };
+}
+
+/**
+ * Generate a 5-step gradient palette from dark to light within the same hue family.
+ */
+export function generateGradientPalette(hex: string): RecommendedPalette {
+    const rgb = hexToRgb(hex);
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+    const { h, s } = hsl;
+    const used: string[] = [];
+
+    // 5 lightness stops from deep to pale
+    const stops = [15, 35, 50, 70, 90];
+    const colors: ColorData[] = [];
+
+    for (const targetL of stops) {
+        const adjustedS = targetL > 75 ? s * 0.4 : targetL < 25 ? s * 0.5 : s * 0.85;
+        const c = hslToRgb(h, Math.min(adjustedS, 75), targetL);
+        const nearest = findNearestExcluding(rgbToHex(c.r, c.g, c.b), used);
+        used.push(nearest.name);
+        colors.push(nearest);
+    }
+
+    return {
+        label: '漸層配色', emoji: '🌈',
+        colors
+    };
+}
+
+/**
+ * Find the best 2 curated palettes for a given hex,
+ * ranked by how close the palette's average color distance is to the target.
+ */
+function pickBestCurated(hex: string, allCurated: RecommendedPalette[]): RecommendedPalette[] {
+    const scored = allCurated.map(p => {
+        const avgDist = p.colors.reduce((sum, c) => sum + colorDistance(hex, c.hex), 0) / p.colors.length;
+        return { palette: p, score: avgDist };
+    });
+    scored.sort((a, b) => a.score - b.score);
+    return scored.slice(0, 2).map(s => s.palette);
+}
+
 export function generateRecommendedPalettes(hex: string): RecommendedPalette[] {
     const hueFamily = classifyHue(hex);
-    const curated = CURATED_PALETTES[hueFamily] || CURATED_PALETTES['neutral'];
+    const curatedRecords = CURATED_PALETTES[hueFamily] || CURATED_PALETTES['neutral'];
 
-    const bestCurated = curated.map(p => {
-        const resolved = p.names.map(n =>
-            TRADITIONAL_COLORS.find(c => c.name === n)
-        ).filter((c): c is ColorData => !!c);
-        return { label: p.label, emoji: p.emoji, colors: resolved };
-    });
+    // Resolve curated palette names to actual ColorData
+    const resolvedCurated = curatedRecords
+        .map(p => {
+            const resolved = p.names
+                .map(n => TRADITIONAL_COLORS.find(c => c.name === n))
+                .filter((c): c is ColorData => !!c);
+            return { label: p.label, emoji: p.emoji, colors: resolved };
+        })
+        .filter(p => p.colors.length >= 5);
 
-    return [
-        bestCurated[0],
+    // Pick the 2 most relevant curated palettes
+    const bestTwo = pickBestCurated(hex, resolvedCurated);
+
+    // Generate 4 algorithmic palettes
+    const algorithmic = [
         generateUIPalette(hex),
-        bestCurated[1],
-        generateCreativePalette(hex)
-    ].filter(p => p && p.colors && p.colors.length >= 5);
+        generateCreativePalette(hex),
+        generateSeasonalPalette(hex),
+        generateGradientPalette(hex)
+    ];
+
+    // Assemble: interleave curated and algorithmic for variety
+    const result: RecommendedPalette[] = [];
+    if (bestTwo[0]) result.push(bestTwo[0]);
+    if (algorithmic[0]) result.push(algorithmic[0]);
+    if (bestTwo[1]) result.push(bestTwo[1]);
+    if (algorithmic[1]) result.push(algorithmic[1]);
+
+    // Fallback: if curated is missing, fill with remaining algorithmic
+    if (result.length < 4) {
+        for (const alg of [algorithmic[2], algorithmic[3]]) {
+            if (result.length >= 4) break;
+            result.push(alg);
+        }
+    }
+
+    return result.slice(0, 4);
 }
