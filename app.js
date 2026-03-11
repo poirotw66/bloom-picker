@@ -527,7 +527,7 @@
        ════════════════════════════════════════ */
 
     function downloadPalettePNG(palette) {
-        var W = 1200, H = 630;
+        var W = 1200, H = 560;
         var canvas = document.createElement('canvas');
         canvas.width = W;
         canvas.height = H;
@@ -601,14 +601,6 @@
         });
 
         ctx.textAlign = 'left';
-
-        // Footer line
-        ctx.fillStyle = 'rgba(255,255,255,0.04)';
-        ctx.fillRect(0, H - 40, W, 40);
-        ctx.font = '400 12px "Outfit", sans-serif';
-        ctx.fillStyle = 'rgba(255,255,255,0.25)';
-        ctx.textAlign = 'center';
-        ctx.fillText('Traditional Colors · 傳統色名 · 高貴優雅', W / 2, H - 15);
 
         // Download
         var link = document.createElement('a');
