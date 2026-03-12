@@ -1,29 +1,24 @@
 # Bloom Picker · 雅色
 
-東方傳統色選色器，命名風格符合台灣口語、高貴優雅，並加入調色盤收藏、推薦色票與無障礙對比度檢查。
+
+Bloom Picker 不只是一個色碼查詢工具，而是把 **東亞傳統色** 與 **現代工作流程** 接軌的橋樑：
+
+- **設計與品牌**：250 款具文化脈絡的色名與色碼，方便品牌、視覺與 UI 設計師快速取用，並可匯出 CSS 變數或 JSON 整合進設計系統。
+- **無障礙與合規**：內建 WCAG 2.1 對比度計算與 AA/AAA 提示，有助於在美觀與可讀性之間取得平衡，貼近無障礙設計需求。
+- **文化與在地化**：色名以台灣慣用繁體呈現（如 桜→櫻、黒→黑），保留傳統色感同時提升在地辨識度，適合需要「雅緻」語境的專案。
+- **探索與靈感**：透過「今日之色」、隨機一色與演算法推薦色票，降低配色門檻，適合快速發想與教學示範。
+
+---
 
 ## 預覽
 
-* **<font color=#F4A7B9>初櫻</font>**
-![wakatake](image/ikkonome.png)
-推薦色票
-![Bloom Picker – 創意配色](image/bloom-picker-創意配色.png)
-概念圖
-![Bloom Picker – 創意配色-img](image/bloom-picker-創意配色-img.png)
------
-* **<font color=#51A8DD>群青</font>**
-![wakatake](image/gunjyo.png)
-推薦色票
-![Bloom Picker – 蒼穹萬里](image/bloom-picker-蒼穹萬里.png)
-概念圖
-![Bloom Picker – 蒼穹萬里-img](image/bloom-picker-蒼穹萬里-img.png)
------
-* **<font color=#5DAC81>若竹</font>**
-![wakatake](image/wakatake.png)
-推薦色票
-![Bloom Picker – 新綠萌芽](image/bloom-picker-新綠萌芽.png)
-概念圖
-![Bloom Picker – 新綠萌芽-img](image/bloom-picker-新綠萌芽-img.png)
+|  | **初櫻** | **群青** | **若竹** |
+|--|----------|----------|----------|
+| 主畫面 | ![初櫻 主](image/ikkonome.png) | ![群青 主](image/gunjyo.png) | ![若竹 主](image/wakatake.png) |
+| 推薦色票 | ![創意配色](image/bloom-picker-創意配色.png) | ![蒼穹萬里](image/bloom-picker-蒼穹萬里.png) | ![新綠萌芽](image/bloom-picker-新綠萌芽.png) |
+| 概念圖 | ![創意配色 概念](image/bloom-picker-創意配色-img.png) | ![蒼穹萬里 概念](image/bloom-picker-蒼穹萬里-img.png) | ![新綠萌芽 概念](image/bloom-picker-新綠萌芽-img.png) |
+
+---
 
 ## 特色
 
@@ -46,24 +41,24 @@
 
 ## 開發與啟動
 
-專案目前為 React + TypeScript（使用 Vite），建議透過 Node.js 啟動開發伺服器。
+專案為 React + TypeScript（Vite），請以 Node.js 啟動開發伺服器：
 
 ```bash
 npm install
 npm run dev
 ```
 
-預設會在瀏覽器開啟 `http://localhost:5173/`（以終端機輸出為準）。
+預設會開啟 `http://localhost:5173/`（以終端機輸出為準）。
 
 ## 部署到 GitHub Pages
 
-本專案仍可視為靜態前端，建置後的 `dist` 可部署到 GitHub Pages 或任何靜態主機。
+建置後的 `dist` 可部署至 GitHub Pages 或任一靜態主機。
 
 1. 將專案 push 到 GitHub 倉庫。
-2. 在倉庫 **Settings → Pages** 中：
+2. 在倉庫 **Settings → Pages**：
    - **Source** 選 **Deploy from a branch**
-   - **Branch** 選 `main`（或你使用的預設分支），資料夾依你的部署流程選擇 `/ (root)` 或 `dist/`
-3. 儲存後等待數分鐘，網站會出現在類似：
+   - **Branch** 選 `main`（或你的預設分支），資料夾依部署方式選 `/ (root)` 或 `dist/`
+3. 儲存後等待數分鐘，網站會出現在：
    - `https://<你的帳號>.github.io/bloom-picker/`
 
 ## 檔案結構（簡要）
@@ -86,3 +81,10 @@ bloom-picker/
 └── README.md
 ```
 
+## 色名與資料
+
+色名以「傳統色名 · 台灣口語 · 高貴優雅」為原則，沿用東亞傳統色名並統一為繁體中文。色碼資料改寫自日本傳統色（如 NIPPON COLORS 等公開資料），僅作轉寫與在地化，非商業用途。
+
+## 授權
+
+專案內色碼資料改寫自公開之日本傳統色資料；網頁結構與程式為本專案原創。
