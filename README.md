@@ -87,4 +87,4 @@ bloom-picker/
 
 ## 授權
 
-專案內色碼資料改寫自公開之日本傳統色資料；網頁結構與程式為本專案原創。
+本專案採用 [Apache License 2.0](LICENSE)。專案內色碼資料改寫自公開之[日本傳統色](https://nipponcolors.com/)資料；網頁結構與程式為本專案原創。
