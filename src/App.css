@@ -891,14 +891,18 @@ body {
         align-items: flex-start;
         justify-content: center;
         column-gap: 4rem;
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 3rem 3rem 6rem;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 2rem 1.5rem 6rem;
+        box-sizing: border-box;
     }
 
     .color-nav {
-        flex: 0 0 30%;
-        max-width: 360px;
+        /* flex: 0 0 320px; */
+        flex: 0 0 35%;
+        min-width: 280px;
+        max-width: 420px;
         background: var(--ui-sidebar-bg);
         border-radius: 18px;
         backdrop-filter: blur(16px);
