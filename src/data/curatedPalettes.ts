@@ -6,7 +6,7 @@ export interface CuratedPaletteRecord {
 
 /**
  * Curated palette combinations for each hue family.
- * Each hue has 4 palettes to ensure every color always has 4 recommendations.
+ * Each hue has 4 palettes to ensure every color always has 6 recommendations.
  * All names MUST match the `name` field in TRADITIONAL_COLORS exactly.
  */
 export const CURATED_PALETTES: Record<string, CuratedPaletteRecord[]> = {

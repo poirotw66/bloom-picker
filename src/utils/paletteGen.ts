@@ -293,20 +293,24 @@ export function generateRecommendedPalettes(hex: string): RecommendedPalette[] {
         generateGradientPalette(hex)
     ];
 
-    // Assemble: interleave curated and algorithmic for variety
+    // Assemble 6 palettes: interleave curated and algorithmic for variety
     const result: RecommendedPalette[] = [];
     if (bestTwo[0]) result.push(bestTwo[0]);
     if (algorithmic[0]) result.push(algorithmic[0]);
     if (bestTwo[1]) result.push(bestTwo[1]);
     if (algorithmic[1]) result.push(algorithmic[1]);
+    result.push(algorithmic[2]);
+    result.push(algorithmic[3]);
 
     // Fallback: if curated is missing, fill with remaining algorithmic
-    if (result.length < 4) {
-        for (const alg of [algorithmic[2], algorithmic[3]]) {
-            if (result.length >= 4) break;
-            result.push(alg);
-        }
+    const TARGET_COUNT = 6;
+    while (result.length < TARGET_COUNT && resolvedCurated.length > 0) {
+        const extra = resolvedCurated.find(
+            p => !result.some(r => r.label === p.label)
+        );
+        if (!extra) break;
+        result.push(injectActiveColor(extra, hex));
     }
 
-    return result.slice(0, 4);
+    return result.slice(0, TARGET_COUNT);
 }

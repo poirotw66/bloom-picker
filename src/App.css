@@ -74,7 +74,7 @@ body {
 
 .logo {
     font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
-    font-size: 1.3rem;
+    font-size: 1.7rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     color: inherit;
@@ -140,7 +140,7 @@ body {
 .tagline {
     margin: 0 0 1rem;
     font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-weight: 400;
     letter-spacing: 0.2em;
     opacity: 0.85;
@@ -234,7 +234,7 @@ body {
 .variation-heading {
     margin: 0 0 0.4rem;
     font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 400;
     letter-spacing: 0.18em;
     opacity: 0.75;
@@ -298,7 +298,7 @@ body {
 
 .variation-label {
     font-family: "Cormorant Garamond", "Noto Serif TC", serif;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     letter-spacing: 0.08em;
     opacity: 0.8;
     margin-top: 0.35rem;
@@ -534,7 +534,7 @@ body {
 /* Recommended Palettes */
 .palette-reco {
     width: 100%;
-    max-width: 42rem;
+    max-width: 100%;
     margin-top: 1rem;
 }
 
@@ -893,8 +893,8 @@ body {
         column-gap: 4rem;
         width: 100%;
         max-width: none;
-        margin: 0;
-        padding: 2rem 1.5rem 6rem;
+        margin: 0 auto;
+        padding: 2rem 3rem 5rem;
         box-sizing: border-box;
     }
 
