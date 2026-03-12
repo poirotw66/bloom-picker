@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ColorData } from '../data/colors';
+import { COLOR_CAPTIONS } from '../data/colorCaptions';
 import { hexToRgb, rgbToCmyk, rgbToHsl } from '../utils/colorConverter';
 import { relativeLuminance, contrastRatio, formatRatio, wcagGrade, wcagIcon } from '../utils/wcag';
 import { getVariations, findNearestTraditionalColor } from '../utils/paletteGen';
@@ -10,10 +11,6 @@ interface ColorDetailProps {
     onShowToast: (msg: string) => void;
     onSelectColor: (color: ColorData) => void;
 }
-
-const COLOR_CAPTIONS: Record<string, string> = {
-    momo: '「 微雨乍晴的桃花頰，帶著初戀還未說出口的薄紅。 」',
-};
 
 export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast, onSelectColor }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
