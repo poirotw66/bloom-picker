@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ColorData, TRADITIONAL_COLORS } from '../data/colors';
-import { ChevronUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, ChevronUp, ChevronUp as ChevronUpIcon } from 'lucide-react';
+import { ColorData } from '../data/colors';
+import { COLOR_BY_NAME, ColorWithMeta } from '../utils/colorMeta';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface FavoriteDrawerProps {
     favorites: string[];
@@ -11,6 +12,7 @@ interface FavoriteDrawerProps {
     onExportCSS: () => void;
     onExportJSON: () => void;
     onReorder: (names: string[]) => void;
+    onOpenChange?: (isOpen: boolean) => void;
 }
 
 export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
@@ -21,13 +23,22 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
     onExportCSS,
     onExportJSON,
     onReorder,
+    onOpenChange,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [draggingName, setDraggingName] = useState<string | null>(null);
+    const isMobile = useIsMobile();
 
     const favColors = favorites
-        .map((name) => TRADITIONAL_COLORS.find((color) => color.name === name))
-        .filter((color): color is ColorData => !!color);
+        .map((name) => COLOR_BY_NAME.get(name))
+        .filter((color): color is ColorWithMeta => !!color);
+    const toggleOpen = () => {
+        setIsOpen((open) => {
+            const next = !open;
+            onOpenChange?.(next);
+            return next;
+        });
+    };
 
     const handleDragStart = (name: string) => {
         setDraggingName(name);
@@ -56,14 +67,33 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
         setDraggingName(null);
     };
 
+    const moveFavorite = (name: string, direction: 'up' | 'down') => {
+        const currentOrder = favColors.map((color) => color.name);
+        const index = currentOrder.indexOf(name);
+        if (index === -1) {
+            return;
+        }
+
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= currentOrder.length) {
+            return;
+        }
+
+        const nextOrder = [...currentOrder];
+        nextOrder.splice(index, 1);
+        nextOrder.splice(targetIndex, 0, name);
+        onReorder(nextOrder);
+    };
+
     return (
         <div className={`palette-drawer ${isOpen ? 'open' : ''}`}>
-            <div className="palette-header" onClick={() => setIsOpen(!isOpen)}>
-                <button className="palette-toggle">
-                    <ChevronUp
+            <div className="palette-header touch-target" onClick={toggleOpen}>
+                <button type="button" className="palette-toggle touch-target">
+                    <ChevronUpIcon
                         size={18}
                         className="palette-toggle-icon"
                         style={{ transform: isOpen ? 'rotate(180deg)' : 'none' }}
+                        aria-hidden="true"
                     />
                     <span>我的調色盤</span>
                     <span className="palette-count">{favorites.length}</span>
@@ -71,7 +101,8 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
 
                 <div className="palette-actions">
                     <button
-                        className="palette-action-btn"
+                        type="button"
+                        className="palette-action-btn touch-target"
                         onClick={(event) => {
                             event.stopPropagation();
                             onExportCSS();
@@ -80,7 +111,8 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
                         CSS
                     </button>
                     <button
-                        className="palette-action-btn"
+                        type="button"
+                        className="palette-action-btn touch-target"
                         onClick={(event) => {
                             event.stopPropagation();
                             onExportJSON();
@@ -89,7 +121,8 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
                         JSON
                     </button>
                     <button
-                        className="palette-action-btn palette-clear"
+                        type="button"
+                        className="palette-action-btn palette-clear touch-target"
                         onClick={(event) => {
                             event.stopPropagation();
                             onClear();
@@ -101,53 +134,69 @@ export const FavoriteDrawer: React.FC<FavoriteDrawerProps> = ({
             </div>
 
             <div className="palette-colors">
-                <AnimatePresence mode="popLayout">
-                    {favColors.length === 0 ? (
-                        <motion.span
-                            key="empty"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="palette-empty"
+                {favColors.length === 0 ? (
+                    <span className="palette-empty">
+                        點擊色塊上的 ♡ 加入收藏
+                    </span>
+                ) : (
+                    favColors.map((color, index) => (
+                        <div
+                            key={color.name}
+                            className="palette-item"
+                            draggable={!isMobile}
+                            onDragStart={() => handleDragStart(color.name)}
+                            onDragOver={(event) => {
+                                event.preventDefault();
+                                handleDragOver(color.name);
+                            }}
+                            onDragEnd={handleDragEnd}
+                            onClick={() => onSelectColor(color)}
                         >
-                            點擊色塊上的 ♡ 加入收藏
-                        </motion.span>
-                    ) : (
-                        favColors.map((color) => (
-                            <motion.div
-                                layout
-                                key={color.name}
-                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.8, x: -20 }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                className="palette-item"
-                                draggable
-                                onDragStart={() => handleDragStart(color.name)}
-                                onDragOver={(event) => {
-                                    event.preventDefault();
-                                    handleDragOver(color.name);
+                            <div className="palette-swatch" style={{ backgroundColor: color.hex }} />
+                            <span className="palette-item-name">{color.nameTW}</span>
+                            {isMobile && (
+                                <div className="palette-reorder-group">
+                                    <button
+                                        type="button"
+                                        className="palette-reorder-btn touch-target"
+                                        aria-label={`將 ${color.nameTW} 上移`}
+                                        disabled={index === 0}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            moveFavorite(color.name, 'up');
+                                        }}
+                                    >
+                                        <ChevronUp size={16} aria-hidden="true" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="palette-reorder-btn touch-target"
+                                        aria-label={`將 ${color.nameTW} 下移`}
+                                        disabled={index === favColors.length - 1}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            moveFavorite(color.name, 'down');
+                                        }}
+                                    >
+                                        <ChevronDown size={16} aria-hidden="true" />
+                                    </button>
+                                </div>
+                            )}
+                            <button
+                                type="button"
+                                className="palette-remove touch-target"
+                                aria-label={`移除 ${color.nameTW}`}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    onRemoveFavorite(color.name);
                                 }}
-                                onDragEnd={handleDragEnd}
-                                onClick={() => onSelectColor(color)}
                             >
-                                <div className="palette-swatch" style={{ backgroundColor: color.hex }}></div>
-                                <span className="palette-item-name">{color.nameTW}</span>
-                                <button
-                                    className="palette-remove"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        onRemoveFavorite(color.name);
-                                    }}
-                                >
-                                    ×
-                                </button>
-                            </motion.div>
-                        ))
-                    )}
-                </AnimatePresence>
+                                ×
+                            </button>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );
 };
-

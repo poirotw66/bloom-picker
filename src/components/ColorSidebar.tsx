@@ -1,15 +1,19 @@
-import React, { useState, useMemo } from 'react';
+import React, { memo, useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
-import { TRADITIONAL_COLORS, ColorData } from '../data/colors';
-import { classifyHue } from '../utils/paletteGen';
-import { hexToRgb } from '../utils/colorConverter';
-import { relativeLuminance, contrastRatio } from '../utils/wcag';
+import { ColorData } from '../data/colors';
+import {
+    COLORS_WITH_META,
+    ColorWithMeta,
+    getColorTextStyle,
+} from '../utils/colorMeta';
 
 interface ColorSidebarProps {
     onSelect: (color: ColorData) => void;
     activeColor: ColorData | null;
     onToggleFavorite: (name: string) => void;
     isFavorite: (name: string) => boolean;
+    showSearch?: boolean;
+    variant?: 'sidebar' | 'explorer';
 }
 
 const HUES = [
@@ -21,34 +25,86 @@ const HUES = [
     { id: 'cyan', label: '青', color: '#0089A7' },
     { id: 'blue', label: '藍', color: '#005CAF' },
     { id: 'purple', label: '紫', color: '#6A4C9C' },
-    { id: 'neutral', label: '灰', color: '#828282' }
+    { id: 'neutral', label: '灰', color: '#828282' },
 ];
 
 function normalizeLatin(value: string): string {
     return value.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-export const ColorSidebar: React.FC<ColorSidebarProps> = ({ onSelect, activeColor, onToggleFavorite, isFavorite }) => {
+interface ColorCardProps {
+    color: ColorWithMeta;
+    isActive: boolean;
+    isFav: boolean;
+    onSelect: (color: ColorData) => void;
+    onToggleFavorite: (name: string) => void;
+}
+
+const ColorCard = memo(function ColorCard({
+    color,
+    isActive,
+    isFav,
+    onSelect,
+    onToggleFavorite,
+}: ColorCardProps) {
+    return (
+        <li>
+            <div
+                className={`color-card ${isActive ? 'active' : ''}`}
+                style={{
+                    backgroundColor: color.hex,
+                    ...getColorTextStyle(color.useDarkText),
+                }}
+                onClick={() => onSelect(color)}
+            >
+                {color.nameTW}
+                <button
+                    type="button"
+                    className={`fav-heart touch-target ${isFav ? 'is-fav' : ''}`}
+                    aria-label={isFav ? '取消收藏' : '加入收藏'}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        onToggleFavorite(color.name);
+                    }}
+                >
+                    {isFav ? '♥' : '♡'}
+                </button>
+            </div>
+        </li>
+    );
+});
+
+export const ColorSidebar: React.FC<ColorSidebarProps> = ({
+    onSelect,
+    activeColor,
+    onToggleFavorite,
+    isFavorite,
+    showSearch = true,
+    variant = 'sidebar',
+}) => {
     const [activeHue, setActiveHue] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredColors = useMemo(() => {
         if (!searchTerm) {
-            return TRADITIONAL_COLORS.filter(color => activeHue === 'all' || classifyHue(color.hex) === activeHue);
+            if (activeHue === 'all') {
+                return COLORS_WITH_META;
+            }
+            return COLORS_WITH_META.filter((color) => color.hue === activeHue);
         }
 
         const rawTerm = searchTerm.trim();
         const latinTerm = normalizeLatin(rawTerm);
 
-        return TRADITIONAL_COLORS.filter(color => {
-            const hueMatch = activeHue === 'all' || classifyHue(color.hex) === activeHue;
-            if (!hueMatch) {
+        return COLORS_WITH_META.filter((color) => {
+            if (activeHue !== 'all' && color.hue !== activeHue) {
                 return false;
             }
 
             const twMatch = color.nameTW.includes(rawTerm);
             const latinName = normalizeLatin(color.name);
-            const latinMatch = latinTerm !== '' && (latinName.startsWith(latinTerm) || latinName.includes(latinTerm));
+            const latinMatch = latinTerm !== ''
+                && (latinName.startsWith(latinTerm) || latinName.includes(latinTerm));
             const jaMatch = color.nameJA.includes(rawTerm);
 
             return twMatch || jaMatch || latinMatch;
@@ -56,62 +112,45 @@ export const ColorSidebar: React.FC<ColorSidebarProps> = ({ onSelect, activeColo
     }, [activeHue, searchTerm]);
 
     return (
-        <aside className="color-nav">
-            <div className="search-container">
-                <span className="search-icon"><Search size={16} /></span>
-                <input
-                    type="text"
-                    className="search-input"
-                    placeholder="搜尋色名..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+        <aside className={`color-nav color-nav--${variant}`}>
+            {showSearch && (
+                <div className="search-container">
+                    <span className="search-icon"><Search size={16} /></span>
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="搜尋色名..."
+                        value={searchTerm}
+                        onChange={(event) => setSearchTerm(event.target.value)}
+                    />
+                </div>
+            )}
 
-            <div className="hue-filters" style={{ marginTop: '1.5rem' }}>
-                {HUES.map(h => (
+            <div className={`hue-filters ${showSearch ? 'hue-filters--with-search' : ''}`}>
+                {HUES.map((hue) => (
                     <button
-                        key={h.id}
-                        className={`hue-btn ${activeHue === h.id ? 'active' : ''}`}
-                        onClick={() => setActiveHue(h.id)}
+                        key={hue.id}
+                        type="button"
+                        className={`hue-btn touch-target ${activeHue === hue.id ? 'active' : ''}`}
+                        onClick={() => setActiveHue(hue.id)}
                     >
-                        <span className="hue-dot" style={{ backgroundColor: h.color }}></span>
-                        {h.label}
+                        <span className="hue-dot" style={{ backgroundColor: hue.color }} />
+                        {hue.label}
                     </button>
                 ))}
             </div>
 
             <ul className="color-list">
-                {filteredColors.map(c => {
-                    const rgb = hexToRgb(c.hex);
-                    const bgLum = relativeLuminance(rgb.r, rgb.g, rgb.b);
-                    const ratioWhite = contrastRatio(1.0, bgLum);
-                    const ratioBlack = contrastRatio(0.0, bgLum);
-                    const useDarkText = ratioBlack > ratioWhite;
-                    return (
-                        <li key={c.name}>
-                            <div
-                                className={`color-card ${activeColor?.name === c.name ? 'active' : ''}`}
-                                style={{
-                                    backgroundColor: c.hex,
-                                    color: useDarkText ? 'rgba(15,23,42,0.9)' : 'rgba(255,255,255,0.9)'
-                                }}
-                                onClick={() => onSelect(c)}
-                            >
-                                {c.nameTW}
-                                <button
-                                    className={`fav-heart ${isFavorite(c.name) ? 'is-fav' : ''}`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onToggleFavorite(c.name);
-                                    }}
-                                >
-                                    {isFavorite(c.name) ? '♥' : '♡'}
-                                </button>
-                            </div>
-                        </li>
-                    );
-                })}
+                {filteredColors.map((color) => (
+                    <ColorCard
+                        key={color.name}
+                        color={color}
+                        isActive={activeColor?.name === color.name}
+                        isFav={isFavorite(color.name)}
+                        onSelect={onSelect}
+                        onToggleFavorite={onToggleFavorite}
+                    />
+                ))}
             </ul>
         </aside>
     );

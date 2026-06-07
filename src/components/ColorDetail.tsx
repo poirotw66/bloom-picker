@@ -1,39 +1,51 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { ColorData } from '../data/colors';
 import { COLOR_CAPTIONS } from '../data/colorCaptions';
 import { hexToRgb, rgbToCmyk, rgbToHsl } from '../utils/colorConverter';
 import { relativeLuminance, contrastRatio, formatRatio, wcagGrade, wcagIcon } from '../utils/wcag';
 import { getVariations, findNearestTraditionalColor } from '../utils/paletteGen';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface ColorDetailProps {
     color: ColorData;
     onShowToast: (msg: string) => void;
     onSelectColor: (color: ColorData) => void;
+    showHeroHex?: boolean;
 }
 
-export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast, onSelectColor }) => {
+export const ColorDetail: React.FC<ColorDetailProps> = memo(function ColorDetail({
+    color,
+    onShowToast,
+    onSelectColor,
+    showHeroHex = false,
+}) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
-    const rgb = hexToRgb(color.hex);
-    const cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
-    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-    const variations = getVariations(color.hex).map((hexValue) => ({
-        hex: hexValue,
-        nearest: findNearestTraditionalColor(hexValue),
-    }));
 
-    const whiteLum = 1.0;
-    const blackLum = 0.0;
-    const colorLum = relativeLuminance(rgb.r, rgb.g, rgb.b);
-    const ratioWhite = contrastRatio(whiteLum, colorLum);
-    const ratioBlack = contrastRatio(blackLum, colorLum);
+    const { rgb, cmyk, hsl, ratioWhite, ratioBlack, variations } = useMemo(() => {
+        const rgbValue = hexToRgb(color.hex);
+        const cmykValue = rgbToCmyk(rgbValue.r, rgbValue.g, rgbValue.b);
+        const hslValue = rgbToHsl(rgbValue.r, rgbValue.g, rgbValue.b);
+        const colorLum = relativeLuminance(rgbValue.r, rgbValue.g, rgbValue.b);
+        const variationList = getVariations(color.hex).map((hexValue) => ({
+            hex: hexValue,
+            nearest: findNearestTraditionalColor(hexValue),
+        }));
 
-    const copy = (text: string) => {
+        return {
+            rgb: rgbValue,
+            cmyk: cmykValue,
+            hsl: hslValue,
+            ratioWhite: contrastRatio(1.0, colorLum),
+            ratioBlack: contrastRatio(0.0, colorLum),
+            variations: variationList,
+        };
+    }, [color.hex]);
+
+    const copy = useCallback((text: string) => {
         navigator.clipboard.writeText(text).then(() => onShowToast(`已複製 ${text}`));
-    };
+    }, [onShowToast]);
 
-    const exportSingle = (format: 'css' | 'scss' | 'rgb' | 'hsl') => {
+    const exportSingle = useCallback((format: 'css' | 'scss' | 'rgb' | 'hsl') => {
         let text = '';
         switch (format) {
             case 'css': text = `--color-${color.name}: ${color.hex};`; break;
@@ -43,7 +55,7 @@ export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast, on
         }
         copy(text);
         setDropdownOpen(false);
-    };
+    }, [color.hex, color.name, copy, hsl.h, hsl.l, hsl.s, rgb.b, rgb.g, rgb.r]);
 
     const handleClickOutside = useCallback((event: MouseEvent) => {
         if (!dropdownOpen) {
@@ -63,108 +75,135 @@ export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast, on
 
     return (
         <div className="color-display">
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={color.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="display-main"
-                >
-                    <h1 className="color-name">{color.nameTW}</h1>
-                    <p className="color-name-ja">{color.nameJA} · {color.name}</p>
-                    {COLOR_CAPTIONS[color.name] && (
-                        <p className="color-caption">
-                            {COLOR_CAPTIONS[color.name]}
-                        </p>
-                    )}
+            <div key={color.name} className="display-main color-detail-enter">
+                <h1 className="color-name">{color.nameTW}</h1>
+                {showHeroHex && (
+                    <button
+                        type="button"
+                        className="color-hex-hero touch-target"
+                        onClick={() => copy(color.hex)}
+                        aria-label={`複製色碼 ${color.hex}`}
+                    >
+                        {color.hex.replace('#', '')}
+                    </button>
+                )}
+                <p className="color-name-ja">{color.nameJA} · {color.name}</p>
+                {COLOR_CAPTIONS[color.name] && (
+                    <p className="color-caption">
+                        {COLOR_CAPTIONS[color.name]}
+                    </p>
+                )}
 
-                    <div className="variation-section">
-                        <p className="variation-heading">相似顏色</p>
-                        <div className="color-variations">
-                            {variations.map((swatch) => (
-                                <div key={swatch.hex} className="variation-item-wrap">
-                                    <div
-                                        className="variation-item"
-                                        style={{ backgroundColor: swatch.hex }}
-                                        data-hex={swatch.hex}
-                                        onClick={() => onSelectColor(swatch.nearest)}
-                                    />
-                                    <span className="variation-label">
-                                        {swatch.nearest.nameTW}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
+                <div className="variation-section">
+                    <p className="variation-heading">相似顏色</p>
+                    <div className="color-variations">
+                        {variations.map((swatch) => (
+                            <div key={swatch.hex} className="variation-item-wrap">
+                                <div
+                                    className="variation-item"
+                                    style={{ backgroundColor: swatch.hex }}
+                                    data-hex={swatch.hex}
+                                    onClick={() => onSelectColor(swatch.nearest)}
+                                />
+                                <span className="variation-label">
+                                    {swatch.nearest.nameTW}
+                                </span>
+                            </div>
+                        ))}
                     </div>
-                </motion.div>
-            </AnimatePresence>
+                </div>
+            </div>
 
             <div className="color-values">
-                <div className="value-row">
-                    <span className="value-label">CMYK</span>
-                    <span className="value">{cmyk.c}, {cmyk.m}, {cmyk.y}, {cmyk.k}</span>
-                    <span className="value-label" style={{ marginLeft: '1rem' }}>RGB</span>
-                    <span className="value">{rgb.r}, {rgb.g}, {rgb.b}</span>
-                </div>
-                <div className="value-row">
-                    <span className="value-label">HSL</span>
-                    <span className="value">{Math.round(hsl.h)}°, {Math.round(hsl.s)}%, {Math.round(hsl.l)}%</span>
-                </div>
-                <div className="value-row hex-row">
-                    <span className="value-label">HEX</span>
-                    <span className="value value-hex" onClick={() => copy(color.hex)}>{color.hex.replace('#', '')}</span>
+                <dl className="value-list">
+                    <div className="value-entry">
+                        <dt className="value-label">CMYK</dt>
+                        <dd className="value">{cmyk.c}, {cmyk.m}, {cmyk.y}, {cmyk.k}</dd>
+                    </div>
+                    <div className="value-entry">
+                        <dt className="value-label">RGB</dt>
+                        <dd className="value">{rgb.r}, {rgb.g}, {rgb.b}</dd>
+                    </div>
+                    <div className="value-entry">
+                        <dt className="value-label">HSL</dt>
+                        <dd className="value">
+                            {Math.round(hsl.h)}°, {Math.round(hsl.s)}%, {Math.round(hsl.l)}%
+                        </dd>
+                    </div>
+                    {!showHeroHex && (
+                        <div className="value-entry">
+                            <dt className="value-label">HEX</dt>
+                            <dd className="value value-hex" onClick={() => copy(color.hex)}>
+                                {color.hex.replace('#', '')}
+                            </dd>
+                        </div>
+                    )}
+                </dl>
 
+                <div className="value-toolbar">
+                    <span className="value-toolbar-label">匯出格式</span>
                     <div className="export-dropdown-wrap" ref={dropdownRef}>
-                        <button className="export-format-btn" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                        <button
+                            type="button"
+                            className="export-format-btn touch-target"
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            aria-expanded={dropdownOpen}
+                            aria-haspopup="menu"
+                        >
                             ▼ 格式
                         </button>
                         {dropdownOpen && (
-                            <div className="export-dropdown">
-                                <button className="export-opt" onClick={() => exportSingle('css')}>CSS Variable</button>
-                                <button className="export-opt" onClick={() => exportSingle('scss')}>SCSS Variable</button>
-                                <button className="export-opt" onClick={() => exportSingle('rgb')}>RGB Formula</button>
-                                <button className="export-opt" onClick={() => exportSingle('hsl')}>HSL Formula</button>
+                            <div className="export-dropdown" role="menu">
+                                <button type="button" className="export-opt" onClick={() => exportSingle('css')}>CSS Variable</button>
+                                <button type="button" className="export-opt" onClick={() => exportSingle('scss')}>SCSS Variable</button>
+                                <button type="button" className="export-opt" onClick={() => exportSingle('rgb')}>RGB Formula</button>
+                                <button type="button" className="export-opt" onClick={() => exportSingle('hsl')}>HSL Formula</button>
                             </div>
                         )}
                     </div>
                 </div>
 
                 <div className="wcag-checker">
+                    <p className="wcag-heading">無障礙對比</p>
                     <div className="wcag-row">
-                        <div className="wcag-sample wcag-white" style={{ backgroundColor: color.hex }}>Aa</div>
-                        <span className="wcag-ratio">{formatRatio(ratioWhite)}</span>
+                        <div className="wcag-preview">
+                            <div className="wcag-sample wcag-white" style={{ backgroundColor: color.hex }}>Aa</div>
+                            <span className="wcag-ratio">{formatRatio(ratioWhite)}</span>
+                            <span className="wcag-legend">白字</span>
+                        </div>
                         <div className="wcag-results">
                             <div className="wcag-item">
                                 <span className={`wcag-badge ${wcagGrade(ratioWhite, 4.5)}`}>
                                     {wcagIcon(wcagGrade(ratioWhite, 4.5))} AA
                                 </span>
-                                <span className="wcag-desc">適合大文本 / 圖表</span>
+                                <span className="wcag-desc">大文本 / 圖表</span>
                             </div>
                             <div className="wcag-item">
                                 <span className={`wcag-badge ${wcagGrade(ratioWhite, 7)}`}>
                                     {wcagIcon(wcagGrade(ratioWhite, 7))} AAA
                                 </span>
-                                <span className="wcag-desc">適合所有大小文字</span>
+                                <span className="wcag-desc">所有大小文字</span>
                             </div>
                         </div>
                     </div>
                     <div className="wcag-row">
-                        <div className="wcag-sample wcag-black" style={{ backgroundColor: color.hex }}>Aa</div>
-                        <span className="wcag-ratio">{formatRatio(ratioBlack)}</span>
+                        <div className="wcag-preview">
+                            <div className="wcag-sample wcag-black" style={{ backgroundColor: color.hex }}>Aa</div>
+                            <span className="wcag-ratio">{formatRatio(ratioBlack)}</span>
+                            <span className="wcag-legend">黑字</span>
+                        </div>
                         <div className="wcag-results">
                             <div className="wcag-item">
                                 <span className={`wcag-badge ${wcagGrade(ratioBlack, 4.5)}`}>
                                     {wcagIcon(wcagGrade(ratioBlack, 4.5))} AA
                                 </span>
-                                <span className="wcag-desc">適合大文本 / 圖表</span>
+                                <span className="wcag-desc">大文本 / 圖表</span>
                             </div>
                             <div className="wcag-item">
                                 <span className={`wcag-badge ${wcagGrade(ratioBlack, 7)}`}>
                                     {wcagIcon(wcagGrade(ratioBlack, 7))} AAA
                                 </span>
-                                <span className="wcag-desc">適合所有大小文字</span>
+                                <span className="wcag-desc">所有大小文字</span>
                             </div>
                         </div>
                     </div>
@@ -172,4 +211,4 @@ export const ColorDetail: React.FC<ColorDetailProps> = ({ color, onShowToast, on
             </div>
         </div>
     );
-};
+});

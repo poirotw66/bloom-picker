@@ -1,19 +1,24 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { TRADITIONAL_COLORS, ColorData } from './data/colors';
+import { COLOR_BY_NAME } from './utils/colorMeta';
 import { Header } from './components/Header';
-import { ColorSidebar } from './components/ColorSidebar';
 import { ColorDetail } from './components/ColorDetail';
-import { PaletteReco } from './components/PaletteReco';
 import { FavoriteDrawer } from './components/FavoriteDrawer';
+import { LeftEdgeRail } from './components/LeftEdgeRail';
 import { useFavorites } from './hooks/useFavorites';
 import { usePaletteExport } from './hooks/usePaletteExport';
+import { useIsMobile } from './hooks/useIsMobile';
 import { computeThemeTokens } from './utils/themeTokens';
 import './App.css';
 
+const PaletteReco = lazy(() =>
+    import('./components/PaletteReco').then((module) => ({ default: module.PaletteReco })),
+);
 const App: React.FC = () => {
     const [activeColor, setActiveColor] = useState<ColorData>(TRADITIONAL_COLORS[191]);
     const { favorites, toggleFavorite, isFavorite, setFavorites } = useFavorites();
     const [toast, setToast] = useState<string | null>(null);
+    const isMobile = useIsMobile();
 
     const showToast = useCallback((message: string) => {
         setToast(message);
@@ -33,7 +38,7 @@ const App: React.FC = () => {
 
     const themeTokens = useMemo(
         () => computeThemeTokens(activeColor.hex),
-        [activeColor.hex]
+        [activeColor.hex],
     );
 
     useEffect(() => {
@@ -42,7 +47,7 @@ const App: React.FC = () => {
             if (!hash) {
                 return;
             }
-            const found = TRADITIONAL_COLORS.find((item) => item.name === hash);
+            const found = COLOR_BY_NAME.get(hash);
             if (found) {
                 setActiveColor(found);
             }
@@ -95,10 +100,11 @@ const App: React.FC = () => {
 
     return (
         <div
-            className="app-container"
+            className={`app-container ${isMobile ? 'app-container--mobile' : 'app-container--desktop'}`}
             style={themeTokens as React.CSSProperties}
         >
-            <div className="bg" style={{ backgroundColor: activeColor?.hex }}></div>
+            <div className="bg" style={{ backgroundColor: activeColor?.hex }} />
+            <div className="bg-overlay" aria-hidden="true" />
 
             <Header
                 onRandomColor={handleRandomColor}
@@ -106,31 +112,34 @@ const App: React.FC = () => {
             />
 
             <main className="main">
-                <ColorSidebar
-                    onSelect={handleSelectColor}
-                    activeColor={activeColor}
-                    onToggleFavorite={toggleFavorite}
-                    isFavorite={isFavorite}
-                />
-
-                <div className="content-area" style={{ flex: 1 }}>
+                <div className="content-area">
                     {activeColor && (
                         <>
                             <ColorDetail
                                 color={activeColor}
                                 onShowToast={showToast}
                                 onSelectColor={handleSelectColor}
+                                showHeroHex
                             />
-                            <PaletteReco
-                                baseHex={activeColor.hex}
-                                onSelectColor={handleSelectColor}
-                                onAddAll={handleAddAll}
-                                onShowToast={showToast}
-                            />
-                        </>
+                            <Suspense fallback={null}>
+                                <PaletteReco
+                                    baseHex={activeColor.hex}
+                                    onSelectColor={handleSelectColor}
+                                    onAddAll={handleAddAll}
+                                    onShowToast={showToast}
+                                />
+                            </Suspense>                        </>
                     )}
                 </div>
             </main>
+
+            <LeftEdgeRail
+                onSelectColor={handleSelectColor}
+                activeColor={activeColor}
+                onToggleFavorite={toggleFavorite}
+                isFavorite={isFavorite}
+                colorCount={TRADITIONAL_COLORS.length}
+            />
 
             <FavoriteDrawer
                 favorites={favorites}
@@ -142,7 +151,11 @@ const App: React.FC = () => {
                 onReorder={handleReorderFavorites}
             />
 
-            {toast && <div className="export-toast">{toast}</div>}
+            {toast && (
+                <div className="export-toast" role="status" aria-live="polite">
+                    {toast}
+                </div>
+            )}
         </div>
     );
 };

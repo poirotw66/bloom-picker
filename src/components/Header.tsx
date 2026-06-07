@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ onRandomColor, onTodayColor }) =
                 <div className="header-actions">
                     <button
                         type="button"
-                        className="header-btn"
+                        className="header-btn touch-target"
                         onClick={onTodayColor}
                     >
                         <Sunrise size={14} />
@@ -22,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({ onRandomColor, onTodayColor }) =
                     </button>
                     <button
                         type="button"
-                        className="header-btn"
+                        className="header-btn touch-target"
                         onClick={onRandomColor}
                     >
                         <Shuffle size={14} />

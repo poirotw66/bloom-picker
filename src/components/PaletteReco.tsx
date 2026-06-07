@@ -20,7 +20,9 @@ export const PaletteReco: React.FC<PaletteRecoProps> = ({ baseHex, onSelectColor
 
     return (
         <section className="palette-reco">
-            <h2 className="palette-reco-title">推薦色票</h2>
+            <div className="section-header">
+                <h2 className="palette-reco-title">推薦色票</h2>
+            </div>
             <div className="palette-reco-grid">
                 {palettes.map((p, idx) => (
                     <PaletteCard
