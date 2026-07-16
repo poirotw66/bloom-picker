@@ -76,23 +76,47 @@ export const ColorDetail: React.FC<ColorDetailProps> = memo(function ColorDetail
     return (
         <div className="color-display">
             <div key={color.name} className="display-main color-detail-enter">
-                <h1 className="color-name">{color.nameTW}</h1>
-                {showHeroHex && (
-                    <button
-                        type="button"
-                        className="color-hex-hero touch-target"
-                        onClick={() => copy(color.hex)}
-                        aria-label={`複製色碼 ${color.hex}`}
-                    >
-                        {color.hex.replace('#', '')}
-                    </button>
-                )}
-                <p className="color-name-ja">{color.nameJA} · {color.name}</p>
-                {COLOR_CAPTIONS[color.name] && (
-                    <p className="color-caption">
-                        {COLOR_CAPTIONS[color.name]}
-                    </p>
-                )}
+                <div className="scroll-frame">
+                    <div className="scroll-ornament scroll-ornament--top" aria-hidden="true">
+                        <span className="scroll-ornament-bar" />
+                        <span className="scroll-ornament-knot" />
+                        <span className="scroll-ornament-bar" />
+                    </div>
+
+                    <div className="scroll-body">
+                        <p className="color-index" aria-hidden="true">
+                            傳統色 · {color.id}
+                        </p>
+                        <h1 className="color-name">{color.nameTW}</h1>
+                        {showHeroHex && (
+                            <button
+                                type="button"
+                                className="color-hex-hero touch-target"
+                                onClick={() => copy(color.hex)}
+                                aria-label={`複製色碼 ${color.hex}`}
+                            >
+                                <span className="color-hex-prefix" aria-hidden="true">#</span>
+                                {color.hex.replace('#', '')}
+                            </button>
+                        )}
+                        <p className="color-name-ja">
+                            <span className="color-name-ja-label">{color.nameJA}</span>
+                            <span className="color-name-ja-sep" aria-hidden="true">·</span>
+                            <span className="color-name-ja-slug">{color.name}</span>
+                        </p>
+                        {COLOR_CAPTIONS[color.name] && (
+                            <blockquote className="color-caption">
+                                {COLOR_CAPTIONS[color.name]}
+                            </blockquote>
+                        )}
+                    </div>
+
+                    <div className="scroll-ornament scroll-ornament--bottom" aria-hidden="true">
+                        <span className="scroll-ornament-bar" />
+                        <span className="scroll-ornament-knot" />
+                        <span className="scroll-ornament-bar" />
+                    </div>
+                </div>
 
                 <div className="variation-section">
                     <p className="variation-heading">相似顏色</p>
