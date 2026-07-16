@@ -3,14 +3,16 @@
 :root {
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
-    --transition-bg: 1.2s var(--ease-out-expo);
-    --transition-ui: 0.2s var(--ease-out);
+    --transition-bg: 1.4s var(--ease-out-expo);
+    --transition-ui: 0.25s var(--ease-out);
     --palette-height: 0px;
     --touch-min: 2.75rem;
     --drawer-peek: 3.2rem;
     --rail-peek: var(--touch-min);
     --content-max: 960px;
     --header-rail-offset: 5.75rem;
+    --ui-accent: rgba(168, 128, 56, 0.75);
+    --ui-accent-soft: rgba(168, 128, 56, 0.18);
 }
 
 *,
@@ -31,7 +33,7 @@ body {
     min-height: 100vh;
     font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
     overflow-x: hidden;
-    background: #0f0f12;
+    background: #12100e;
 }
 
 .app-container {
@@ -55,25 +57,67 @@ body {
     z-index: -1;
     pointer-events: none;
     background:
-        linear-gradient(180deg, var(--ui-glow, rgba(255, 255, 255, 0.06)) 0%, transparent 28%),
-        radial-gradient(ellipse 110% 85% at 50% 18%, transparent 35%, var(--ui-vignette-edge, rgba(0, 0, 0, 0.15)) 100%);
+        linear-gradient(180deg, var(--ui-glow, rgba(255, 252, 246, 0.06)) 0%, transparent 32%),
+        radial-gradient(ellipse 120% 90% at 50% 12%, transparent 38%, var(--ui-vignette-edge, rgba(0, 0, 0, 0.15)) 100%);
     transition: opacity 0.8s var(--ease-out);
+}
+
+.bg-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    mix-blend-mode: soft-light;
+}
+
+.bg-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, var(--ui-accent-soft, rgba(168, 128, 56, 0.08)) 0%, transparent 70%);
+    opacity: 0.6;
 }
 
 .header {
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 1.35rem 1.5rem 1.1rem;
+    padding: 1rem 1.5rem 1.05rem;
     padding-left: calc(var(--rail-peek) + 0.85rem);
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.45rem;
     background: var(--ui-card-bg);
-    backdrop-filter: blur(20px) saturate(1.2);
-    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    backdrop-filter: blur(24px) saturate(1.25);
+    -webkit-backdrop-filter: blur(24px) saturate(1.25);
     border-bottom: 1px solid var(--ui-border);
     box-shadow: var(--ui-shadow-soft, 0 4px 24px rgba(0, 0, 0, 0.06));
+}
+
+.header-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-bottom: 0.15rem;
+    opacity: 0.55;
+}
+
+.header-ornament-line {
+    flex: 1;
+    max-width: 5rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--ui-accent, rgba(168, 128, 56, 0.75)), transparent);
+}
+
+.header-ornament-gem {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ui-accent, rgba(168, 128, 56, 0.75));
+    box-shadow: 0 0 8px var(--ui-accent-soft, rgba(168, 128, 56, 0.18));
 }
 
 .header-top {
@@ -102,20 +146,32 @@ body {
     transform: rotate(15deg);
 }
 
-.logo {
-    font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
-    font-size: 1.55rem;
-    font-weight: 700;
-    letter-spacing: 0.38em;
-    color: inherit;
-    text-decoration: none;
-    transition: opacity var(--transition-ui), letter-spacing 0.4s var(--ease-out-expo);
-    cursor: pointer;
+.logo-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
 }
 
-.logo:hover {
-    opacity: 0.82;
+.logo {
+    font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
+    font-size: 1.65rem;
+    font-weight: 700;
     letter-spacing: 0.42em;
+    text-indent: 0.42em;
+    color: inherit;
+    line-height: 1.1;
+    transition: opacity var(--transition-ui), letter-spacing 0.5s var(--ease-out-expo);
+    cursor: default;
+}
+
+.logo-sub {
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.38em;
+    text-indent: 0.38em;
+    opacity: 0.55;
+    text-transform: uppercase;
 }
 
 /* ── Header Action Buttons ── */
@@ -128,12 +184,12 @@ body {
 .header-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.95rem;
+    gap: 0.45rem;
+    padding: 0.5rem 1rem;
     font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
     font-size: 0.68rem;
     font-weight: 400;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
     color: var(--ui-text-secondary);
     background: var(--ui-btn-bg);
     border: 1px solid var(--ui-border);
@@ -141,12 +197,12 @@ body {
     cursor: pointer;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+    box-shadow: 0 1px 0 rgba(255, 252, 246, 0.3) inset;
     transition:
         background-color var(--transition-ui),
         color var(--transition-ui),
         border-color var(--transition-ui),
-        transform 0.25s var(--ease-out-expo),
+        transform 0.3s var(--ease-out-expo),
         box-shadow var(--transition-ui);
     white-space: nowrap;
 }
@@ -174,11 +230,13 @@ body {
 
 .tagline {
     margin: 0;
-    font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
-    font-size: 0.78rem;
-    font-weight: 300;
-    letter-spacing: 0.32em;
-    opacity: 0.72;
+    font-family: "Noto Serif TC", "LXGW WenKai TC", serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.38em;
+    text-indent: 0.38em;
+    text-align: center;
+    opacity: 0.62;
 }
 
 /* ── Search ── */
@@ -258,7 +316,7 @@ body {
 @keyframes color-detail-enter {
     from {
         opacity: 0;
-        transform: translateY(14px);
+        transform: translateY(18px);
     }
     to {
         opacity: 1;
@@ -267,41 +325,124 @@ body {
 }
 
 .color-detail-enter {
-    animation: color-detail-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: color-detail-enter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Kakemono scroll frame */
+.scroll-frame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 28rem;
+    margin: 0 auto;
+    padding: 0 0.5rem;
+}
+
+.scroll-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.35rem 0;
+}
+
+.scroll-ornament-bar {
+    flex: 1;
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--ui-accent, rgba(168, 128, 56, 0.75)) 20%,
+        var(--ui-accent, rgba(168, 128, 56, 0.75)) 80%,
+        transparent
+    );
+    opacity: 0.7;
+}
+
+.scroll-ornament-knot {
+    width: 8px;
+    height: 8px;
+    border: 1.5px solid var(--ui-accent, rgba(168, 128, 56, 0.75));
+    border-radius: 50%;
+    transform: rotate(45deg);
+    opacity: 0.8;
+}
+
+.scroll-body {
+    width: 100%;
+    padding: 1.25rem 0.5rem 1.5rem;
+    text-align: center;
+}
+
+.color-index {
+    margin: 0 0 0.85rem;
+    font-family: "Cormorant Garamond", "Noto Serif TC", serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    opacity: 0.5;
 }
 
 .color-name {
     font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
     margin: 0;
-    font-size: clamp(2.75rem, 9vw, 5rem);
+    font-size: clamp(2.85rem, 9.5vw, 5.25rem);
     font-weight: 700;
-    letter-spacing: 0.22em;
-    line-height: 1.15;
-    text-indent: 0.22em;
+    letter-spacing: 0.28em;
+    line-height: 1.12;
+    text-indent: 0.28em;
 }
 
 .color-name-ja {
-    margin: 0.65rem 0 0;
+    margin: 0.75rem 0 0;
     font-family: "Cormorant Garamond", "Noto Serif TC", serif;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 400;
     font-style: italic;
-    letter-spacing: 0.12em;
-    opacity: 0.78;
+    letter-spacing: 0.1em;
+    opacity: 0.76;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.color-name-ja-label {
+    font-style: normal;
+    font-family: "LXGW WenKai TC", serif;
+    letter-spacing: 0.14em;
+}
+
+.color-name-ja-sep {
+    opacity: 0.45;
+    font-style: normal;
+}
+
+.color-name-ja-slug {
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    opacity: 0.85;
 }
 
 .color-caption {
-    margin: 1rem 0 0;
-    padding-left: 0.85rem;
-    border-left: 2px solid var(--ui-border);
-    font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
-    font-size: 0.82rem;
-    font-weight: 300;
-    letter-spacing: 0.06em;
-    line-height: 1.85;
+    margin: 1.35rem auto 0;
+    padding: 0.85rem 0 0.85rem 1rem;
+    border: none;
+    border-left: 2px solid var(--ui-accent, rgba(168, 128, 56, 0.75));
+    font-family: "Noto Serif TC", "LXGW WenKai TC", serif;
+    font-size: 0.84rem;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.05em;
+    line-height: 1.9;
     color: var(--ui-text-secondary);
     text-align: left;
-    max-width: 26em;
+    max-width: 24em;
 }
 
 .variation-section {
@@ -312,14 +453,31 @@ body {
 }
 
 .variation-heading {
-    margin: 0 0 0.65rem;
+    margin: 0 0 0.85rem;
     font-family: "Cormorant Garamond", "Noto Serif TC", serif;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
-    opacity: 0.65;
-    text-align: left;
+    opacity: 0.6;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.variation-heading::before,
+.variation-heading::after {
+    content: '';
+    width: 1.5rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--ui-accent, rgba(168, 128, 56, 0.75)));
+    opacity: 0.6;
+}
+
+.variation-heading::after {
+    background: linear-gradient(90deg, var(--ui-accent, rgba(168, 128, 56, 0.75)), transparent);
 }
 
 .color-variations {
@@ -337,16 +495,16 @@ body {
 }
 
 .variation-item {
-    width: 2.65rem;
-    height: 2.65rem;
-    border-radius: 10px;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
     cursor: pointer;
     transition:
-        transform 0.3s var(--ease-out-expo),
+        transform 0.35s var(--ease-out-expo),
         box-shadow var(--transition-ui);
     position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(255, 252, 246, 0.22);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
 }
 
 .variation-item:hover {
@@ -397,13 +555,26 @@ body {
     max-width: 100%;
     min-width: 0;
     gap: 0.85rem;
-    padding: 1.35rem 1.25rem;
+    padding: 1.5rem 1.35rem;
     background: var(--ui-card-bg);
-    border-radius: 16px;
-    backdrop-filter: blur(20px) saturate(1.15);
-    -webkit-backdrop-filter: blur(20px) saturate(1.15);
+    border-radius: 4px 4px 18px 18px;
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
     box-shadow: var(--ui-shadow-card);
     border: 1px solid var(--ui-card-border);
+    position: relative;
+}
+
+.color-values::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 1.25rem;
+    right: 1.25rem;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--ui-accent, rgba(168, 128, 56, 0.75)), transparent);
+    opacity: 0.65;
+    border-radius: 1px;
 }
 
 .value-list {
@@ -707,25 +878,34 @@ body {
 .section-header {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    margin-bottom: 1.15rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.section-header::before {
+    content: '◆';
+    font-size: 0.45rem;
+    color: var(--ui-accent, rgba(168, 128, 56, 0.75));
+    opacity: 0.7;
+    flex-shrink: 0;
 }
 
 .section-header::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: linear-gradient(to right, var(--ui-border), transparent 85%);
+    background: linear-gradient(to right, var(--ui-accent, rgba(168, 128, 56, 0.75)), transparent 90%);
+    opacity: 0.45;
 }
 
 .palette-reco-title {
     margin: 0;
     font-family: "Cormorant Garamond", "Noto Serif TC", serif;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.32em;
     text-transform: uppercase;
-    opacity: 0.8;
+    opacity: 0.82;
     white-space: nowrap;
 }
 
@@ -738,14 +918,27 @@ body {
 .reco-card {
     background: var(--ui-card-bg);
     border: 1px solid var(--ui-card-border);
-    border-radius: 14px;
-    padding: 1rem 1.05rem;
-    backdrop-filter: blur(16px) saturate(1.1);
-    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    border-radius: 4px 4px 16px 16px;
+    padding: 1.1rem 1.15rem 1.15rem;
+    backdrop-filter: blur(18px) saturate(1.15);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
     box-shadow: var(--ui-shadow-soft);
     transition:
-        transform 0.35s var(--ease-out-expo),
+        transform 0.4s var(--ease-out-expo),
         box-shadow var(--transition-ui);
+    position: relative;
+    overflow: hidden;
+}
+
+.reco-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 10%, var(--ui-accent, rgba(168, 128, 56, 0.75)) 50%, transparent 90%);
+    opacity: 0.5;
 }
 
 .reco-card:hover {
@@ -761,23 +954,59 @@ body {
 }
 
 .reco-save-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
     background: none;
     border: 1px solid var(--ui-border);
     color: inherit;
+    font-family: "LXGW WenKai TC", serif;
     font-size: 0.58rem;
-    padding: 0.2rem 0.5rem;
+    letter-spacing: 0.08em;
+    padding: 0.28rem 0.55rem;
     border-radius: 4px;
     cursor: pointer;
-    opacity: 0.7;
+    opacity: 0.72;
+    transition: all var(--transition-ui);
+}
+
+.reco-save-all:hover {
+    opacity: 1;
+    background: var(--ui-bg-hover);
+    border-color: var(--ui-border-hover);
+}
+
+.reco-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: "LXGW WenKai TC", serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+}
+
+.reco-label-emoji {
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+
+.reco-label-text {
+    font-weight: 500;
+}
+
+.reco-actions {
+    display: flex;
+    gap: 0.4rem;
 }
 
 .reco-strip {
     display: flex;
-    border-radius: 10px;
+    border-radius: 6px;
     overflow: hidden;
-    height: 2.4rem;
-    margin-bottom: 0.45rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    height: 2.6rem;
+    margin-bottom: 0.55rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--ui-border);
 }
 
 .reco-strip-cell {
@@ -924,13 +1153,25 @@ body {
     right: 0;
     z-index: 100;
     background: var(--ui-card-bg);
-    backdrop-filter: blur(28px) saturate(1.2);
-    -webkit-backdrop-filter: blur(28px) saturate(1.2);
+    backdrop-filter: blur(32px) saturate(1.25);
+    -webkit-backdrop-filter: blur(32px) saturate(1.25);
     border-top: 1px solid var(--ui-card-border);
     transform: translateY(calc(100% - 3.2rem));
-    transition: transform 0.4s var(--ease-out-expo);
+    transition: transform 0.45s var(--ease-out-expo);
     color: var(--ui-text);
-    box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 -20px 56px rgba(0, 0, 0, 0.14);
+}
+
+.palette-drawer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(12rem, 40%);
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--ui-accent, rgba(168, 128, 56, 0.75)), transparent);
+    opacity: 0.55;
 }
 
 .palette-drawer.open {
@@ -953,10 +1194,10 @@ body {
     background: transparent;
     border: none;
     color: inherit;
-    font-family: "LXGW WenKai TC", sans-serif;
-    font-size: 0.9rem;
+    font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
+    font-size: 0.88rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     cursor: pointer;
     padding: 0;
 }
@@ -1163,25 +1404,33 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin: 0.85rem 0 0.25rem;
-    padding: 0.45rem 1.15rem;
+    gap: 0.1rem;
+    margin: 1rem 0 0.15rem;
+    padding: 0.5rem 1.35rem;
     font-family: "Cormorant Garamond", "Noto Sans TC", serif;
-    font-size: clamp(1.35rem, 4vw, 1.65rem);
+    font-size: clamp(1.4rem, 4.2vw, 1.75rem);
     font-weight: 600;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     font-variant-numeric: tabular-nums;
     color: var(--ui-text);
     background: var(--ui-hex-bg);
     border: 1px solid var(--ui-border);
-    border-radius: 999px;
+    border-radius: 4px;
     cursor: copy;
-    backdrop-filter: blur(8px);
-    box-shadow: var(--ui-shadow-soft);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--ui-shadow-soft), 0 0 0 1px var(--ui-accent-soft, rgba(168, 128, 56, 0.18));
     transition:
         background-color var(--transition-ui),
         border-color var(--transition-ui),
-        transform 0.3s var(--ease-out-expo),
+        transform 0.35s var(--ease-out-expo),
         box-shadow var(--transition-ui);
+}
+
+.color-hex-prefix {
+    font-size: 0.75em;
+    opacity: 0.55;
+    font-weight: 400;
+    margin-right: 0.1rem;
 }
 
 .color-hex-hero:hover,
@@ -1240,10 +1489,10 @@ body {
     justify-content: center;
     border: 1px solid var(--ui-card-border);
     border-left: none;
-    border-radius: 0 14px 14px 0;
+    border-radius: 0 4px 4px 0;
     background: var(--ui-card-bg);
-    backdrop-filter: blur(20px) saturate(1.15);
-    -webkit-backdrop-filter: blur(20px) saturate(1.15);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
     color: inherit;
     cursor: pointer;
     box-shadow: var(--ui-shadow-soft);
@@ -1356,10 +1605,10 @@ body {
     justify-content: center;
     border: 1px solid var(--ui-card-border);
     border-left: none;
-    border-radius: 0 14px 14px 0;
+    border-radius: 0 4px 4px 0;
     background: var(--ui-card-bg);
-    backdrop-filter: blur(20px) saturate(1.15);
-    -webkit-backdrop-filter: blur(20px) saturate(1.15);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
     color: inherit;
     cursor: pointer;
     box-shadow: var(--ui-shadow-soft);
@@ -1528,13 +1777,21 @@ body {
     }
 
     .logo {
-        font-size: 1.4rem;
-        letter-spacing: 0.2em;
+        font-size: 1.45rem;
+        letter-spacing: 0.32em;
+        text-indent: 0.32em;
+    }
+
+    .logo-sub {
+        font-size: 0.52rem;
+        letter-spacing: 0.28em;
+        text-indent: 0.28em;
     }
 
     .tagline {
-        font-size: 0.85rem;
-        margin-bottom: 0.5rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.28em;
+        text-indent: 0.28em;
     }
 
     .header-btn {
@@ -1553,9 +1810,15 @@ body {
         align-items: center;
     }
 
+    .scroll-frame {
+        max-width: none;
+        padding: 0;
+    }
+
     .color-name {
         font-size: clamp(2.5rem, 12vw, 3.5rem);
-        margin-bottom: 0;
+        letter-spacing: 0.22em;
+        text-indent: 0.22em;
     }
 
     .color-name-ja {
@@ -1651,6 +1914,28 @@ body {
 
     .display-main {
         grid-area: hero;
+    }
+
+    .scroll-frame {
+        max-width: 32rem;
+        margin: 0;
+    }
+
+    .scroll-body {
+        text-align: left;
+        padding-left: 0.25rem;
+    }
+
+    .color-name-ja {
+        justify-content: flex-start;
+    }
+
+    .color-caption {
+        margin-left: 0;
+    }
+
+    .variation-heading {
+        justify-content: flex-start;
     }
 
     .color-values {

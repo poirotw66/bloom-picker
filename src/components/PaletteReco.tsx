@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Download, Heart } from 'lucide-react';
 import { ColorData } from '../data/colors';
 import { generateRecommendedPalettes, RecommendedPalette } from '../utils/paletteGen';
 import { hexToRgb } from '../utils/colorConverter';
@@ -49,13 +50,26 @@ const PaletteCard: React.FC<PaletteCardProps> = ({ palette, onSelectColor, onAdd
     return (
         <div className="reco-card">
             <div className="reco-card-header">
-                <span className="reco-label">{palette.emoji} {palette.label}</span>
+                <span className="reco-label">
+                    <span className="reco-label-emoji" aria-hidden="true">{palette.emoji}</span>
+                    <span className="reco-label-text">{palette.label}</span>
+                </span>
                 <div className="reco-actions">
-                    <button className="reco-save-all" onClick={() => downloadPalettePNG(palette, onShowToast)}>
-                        ⬇ 下載 PNG
+                    <button
+                        type="button"
+                        className="reco-save-all"
+                        onClick={() => downloadPalettePNG(palette, onShowToast)}
+                    >
+                        <Download size={11} strokeWidth={1.75} aria-hidden="true" />
+                        PNG
                     </button>
-                    <button className="reco-save-all" onClick={() => onAddAll(palette.colors)}>
-                        + 收藏整組
+                    <button
+                        type="button"
+                        className="reco-save-all"
+                        onClick={() => onAddAll(palette.colors)}
+                    >
+                        <Heart size={11} strokeWidth={1.75} aria-hidden="true" />
+                        收藏
                     </button>
                 </div>
             </div>
