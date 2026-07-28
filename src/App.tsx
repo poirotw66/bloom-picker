@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
 import { TRADITIONAL_COLORS, ColorData } from './data/colors';
 import { COLOR_BY_NAME } from './utils/colorMeta';
 import { Header } from './components/Header';
@@ -14,15 +14,38 @@ import './App.css';
 const PaletteReco = lazy(() =>
     import('./components/PaletteReco').then((module) => ({ default: module.PaletteReco })),
 );
+const TOAST_VISIBLE_MS = 2000;
+const TOAST_EXIT_MS = 320;
+
+interface ToastState {
+    message: string;
+    leaving: boolean;
+}
+
 const App: React.FC = () => {
     const [activeColor, setActiveColor] = useState<ColorData>(TRADITIONAL_COLORS[191]);
     const { favorites, toggleFavorite, isFavorite, setFavorites } = useFavorites();
-    const [toast, setToast] = useState<string | null>(null);
+    const [toast, setToast] = useState<ToastState | null>(null);
+    const toastTimers = useRef<number[]>([]);
     const isMobile = useIsMobile();
 
+    // Timers are tracked so a rapid second copy cannot be cut short by the
+    // first toast's pending dismissal, and so the exit animation can play.
     const showToast = useCallback((message: string) => {
-        setToast(message);
-        setTimeout(() => setToast(null), 2000);
+        toastTimers.current.forEach(window.clearTimeout);
+        toastTimers.current = [
+            window.setTimeout(() => {
+                setToast((current) => (current ? { ...current, leaving: true } : null));
+            }, TOAST_VISIBLE_MS),
+            window.setTimeout(() => {
+                setToast(null);
+            }, TOAST_VISIBLE_MS + TOAST_EXIT_MS),
+        ];
+        setToast({ message, leaving: false });
+    }, []);
+
+    useEffect(() => () => {
+        toastTimers.current.forEach(window.clearTimeout);
     }, []);
 
     const {
@@ -77,7 +100,10 @@ const App: React.FC = () => {
     const handleSelectColor = useCallback((color: ColorData) => {
         setActiveColor(color);
         window.location.hash = color.name;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // An explicit `smooth` overrides the CSS reduced-motion override, so
+        // the preference has to be honoured here rather than in App.css.
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
     }, []);
 
     const handleRandomColor = useCallback(() => {
@@ -152,8 +178,13 @@ const App: React.FC = () => {
             />
 
             {toast && (
-                <div className="export-toast" role="status" aria-live="polite">
-                    {toast}
+                <div
+                    key={toast.message}
+                    className={`export-toast ${toast.leaving ? 'export-toast--leaving' : ''}`}
+                    role="status"
+                    aria-live="polite"
+                >
+                    {toast.message}
                 </div>
             )}
         </div>

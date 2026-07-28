@@ -123,10 +123,12 @@ export const ColorDetail: React.FC<ColorDetailProps> = memo(function ColorDetail
                     <div className="color-variations">
                         {variations.map((swatch) => (
                             <div key={swatch.hex} className="variation-item-wrap">
-                                <div
+                                <button
+                                    type="button"
                                     className="variation-item"
                                     style={{ backgroundColor: swatch.hex }}
                                     data-hex={swatch.hex}
+                                    aria-label={`選擇 ${swatch.nearest.nameTW} ${swatch.hex}`}
                                     onClick={() => onSelectColor(swatch.nearest)}
                                 />
                                 <span className="variation-label">
@@ -157,8 +159,15 @@ export const ColorDetail: React.FC<ColorDetailProps> = memo(function ColorDetail
                     {!showHeroHex && (
                         <div className="value-entry">
                             <dt className="value-label">HEX</dt>
-                            <dd className="value value-hex" onClick={() => copy(color.hex)}>
-                                {color.hex.replace('#', '')}
+                            <dd className="value">
+                                <button
+                                    type="button"
+                                    className="value value-hex"
+                                    aria-label={`複製色碼 ${color.hex}`}
+                                    onClick={() => copy(color.hex)}
+                                >
+                                    {color.hex.replace('#', '')}
+                                </button>
                             </dd>
                         </div>
                     )}
