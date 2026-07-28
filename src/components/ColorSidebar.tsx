@@ -47,29 +47,32 @@ const ColorCard = memo(function ColorCard({
     onSelect,
     onToggleFavorite,
 }: ColorCardProps) {
+    // The heart is a sibling of the card rather than a child: a button cannot
+    // legally nest inside another button, and the card must be a real button
+    // so all 250 swatches are reachable by keyboard.
     return (
-        <li>
-            <div
+        <li className="color-card-item">
+            <button
+                type="button"
                 className={`color-card ${isActive ? 'active' : ''}`}
                 style={{
                     backgroundColor: color.hex,
                     ...getColorTextStyle(color.useDarkText),
                 }}
+                aria-current={isActive ? 'true' : undefined}
                 onClick={() => onSelect(color)}
             >
                 {color.nameTW}
-                <button
-                    type="button"
-                    className={`fav-heart touch-target ${isFav ? 'is-fav' : ''}`}
-                    aria-label={isFav ? '取消收藏' : '加入收藏'}
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        onToggleFavorite(color.name);
-                    }}
-                >
-                    {isFav ? '♥' : '♡'}
-                </button>
-            </div>
+            </button>
+            <button
+                type="button"
+                className={`fav-heart touch-target ${isFav ? 'is-fav' : ''}`}
+                aria-label={`${isFav ? '取消收藏' : '加入收藏'} ${color.nameTW}`}
+                aria-pressed={isFav}
+                onClick={() => onToggleFavorite(color.name)}
+            >
+                {isFav ? '♥' : '♡'}
+            </button>
         </li>
     );
 });

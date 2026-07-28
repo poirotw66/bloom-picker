@@ -82,14 +82,16 @@ const PaletteCard: React.FC<PaletteCardProps> = ({ palette, onSelectColor, onAdd
                     const ratioWithBlack = contrastRatio(0.0, backgroundLuminance);
                     const shouldUseDarkText = ratioWithBlack > ratioWithWhite;
                     return (
-                        <div
+                        <button
                             key={index}
+                            type="button"
                             className="reco-strip-cell"
                             style={{
                                 backgroundColor: color.hex,
                                 color: shouldUseDarkText ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.85)'
                             }}
                             data-hex={color.hex}
+                            aria-label={`選擇 ${color.nameTW} ${color.hex}`}
                             onClick={() => onSelectColor(color)}
                         />
                     );
@@ -98,9 +100,15 @@ const PaletteCard: React.FC<PaletteCardProps> = ({ palette, onSelectColor, onAdd
 
             <div className="reco-names">
                 {palette.colors.map((c, i) => (
-                    <span key={i} className="reco-name-cell" onClick={() => onSelectColor(c)}>
+                    <button
+                        key={i}
+                        type="button"
+                        className="reco-name-cell"
+                        aria-label={`選擇 ${c.nameTW}`}
+                        onClick={() => onSelectColor(c)}
+                    >
                         {c.nameTW}
-                    </span>
+                    </button>
                 ))}
             </div>
         </div>

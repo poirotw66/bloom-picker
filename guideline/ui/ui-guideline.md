@@ -72,7 +72,7 @@
 | UI 元件庫 | 無（自訂元件） | 避免通用元件庫視覺 |
 | CSS 方案 | 全域 CSS（`App.css`）+ CSS 變數 | theme token 由 JS 注入 |
 | 圖示庫 | Lucide React | 線條簡潔，不搶色票 |
-| 動畫 | Framer Motion | 色切換、drawer、tab |
+| 動畫 | 純 CSS（transition / keyframes + 動效 token） | Framer Motion 已移除；見「動效」章節 |
 | 字型載入 | Google Fonts | 見 index.html |
 
 ---
@@ -260,7 +260,7 @@
 |------|------|
 | collapsed | 底部固定條，顯示「探索色票 (N)」+ chevron |
 | expanded | 向上展開 max-height ~50vh，內含 hue-filters + color-list scroll |
-| 動效 | Framer Motion 或 CSS transform，`--ease-out-expo` |
+| 動效 | CSS transform，`--dur-panel` + `--ease-out-expo` |
 
 **互斥：** tab expanded 時，FavoriteDrawer 維持 peek 或 auto-collapse（ui-spec 定案，預設 drawer peek + tab 在上層 z-index 3）。
 
@@ -299,14 +299,56 @@
 
 ## 動效
 
+### Easing
+
 | Token | 值 | 用途 |
 |-------|---|------|
-| `--ease-out-expo` | cubic-bezier(0.16, 1, 0.3, 1) | 背景、drawer、tab |
-| `--ease-out` | cubic-bezier(0.33, 1, 0.68, 1) | UI 微互動 |
-| `--transition-bg` | 1.2s | 全屏色切換 |
-| `--transition-ui` | 0.2s | 按鈕、hover |
+| `--ease-out-expo` | cubic-bezier(0.16, 1, 0.3, 1) | 位移：背景、drawer、rail、lift |
+| `--ease-sumi` | cubic-bezier(0.22, 0.61, 0.24, 1) | 色彩／不透明度：墨落紙上，尾段收得慢且不過衝 |
+| `--ease-press` | cubic-bezier(0.4, 0, 0.2, 1) | 按壓 |
+| `--ease-out` | cubic-bezier(0.33, 1, 0.68, 1) | 保留（舊值） |
 
-`prefers-reduced-motion: reduce` 時：背景 transition 降至 0.01ms，transform 動畫停用。
+### Duration
+
+| Token | 值 | 用途 |
+|-------|---|------|
+| `--dur-press` | 90ms | 按壓回饋 |
+| `--dur-tint` | 170ms | 只變色／透明度 |
+| `--dur-hover` | 280ms | lift、描邊、tooltip |
+| `--dur-panel` | 460ms | drawer、側邊 rail、dropdown、toast |
+| `--dur-veil` | 900ms | 掛軸入場單段時長 |
+| `--transition-bg` | 1.4s | 全屏色切換 |
+
+### 手勢語彙
+
+| Token | 值 | 說明 |
+|-------|---|------|
+| `--lift-sm` | -1px | 行內控制項 hover |
+| `--lift-md` | -3px | 卡片、色票 hover |
+| `--press-scale` | 0.985 | 統一按壓縮放 |
+| `--stagger` | 65ms | 掛軸層遞間隔 |
+
+**禁止事項：**
+
+- 不使用 `transition: all` — 一律明列屬性，避免色票背景色被意外補間
+- hover 效果一律包在 `@media (hover: hover)` 內，否則觸控點擊後樣式會卡住不還原
+- 不以 `flex` / `width` 等版面屬性做 hover 動畫；色票 strip 的比例必須誠實，改用 inset 描邊 + 色碼浮現標示
+
+### 掛軸入場（ColorDetail）
+
+選色後 `.color-detail-enter` 內的元素依序浮現，而非整塊一起位移：
+軸桿展開 → 索引 → 色名（字距由寬收攏）→ HEX → 日文名 → caption → 相似色。
+總長（0.45s stagger + 0.9s travel）對齊 1.4s 背景過渡，內容不會早於它的顏色到場。
+
+### 無障礙
+
+`prefers-reduced-motion: reduce` 時：
+
+- 所有 `animation-duration` / `transition-duration` 降至 0.01ms
+- **`animation-delay` 必須一併歸零** — 否則層遞入場的 `backwards` fill 會讓各行維持在起始的 opacity 0 長達半秒
+- 具名動畫（toast、dropdown、backdrop、掛軸入場）直接 `animation: none`
+- 按壓保留為狀態變化，不做位移
+- `window.scrollTo({ behavior: 'smooth' })` 需在 JS 端以 `matchMedia` 判斷，CSS 的 `scroll-behavior` 覆寫不到明確傳入的 `smooth`
 
 ---
 

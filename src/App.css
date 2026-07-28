@@ -1,10 +1,30 @@
 /* 雅色 · 傳統色 — Noble, elegant React version */
 
 :root {
+    /* ── Motion: easing ── */
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+    /* Ink settling on paper — decelerates late, never overshoots */
+    --ease-sumi: cubic-bezier(0.22, 0.61, 0.24, 1);
+    /* Press: leaves immediately, returns calmly */
+    --ease-press: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ── Motion: duration scale ── */
+    --dur-press: 90ms;    /* tactile acknowledgement */
+    --dur-tint: 170ms;    /* colour / opacity only */
+    --dur-hover: 280ms;   /* lift, ring, tooltip */
+    --dur-panel: 460ms;   /* drawers, rails, dropdowns */
+    --dur-veil: 900ms;    /* content reveal */
+
+    /* ── Motion: gesture vocabulary ── */
+    --lift-sm: -1px;      /* inline controls */
+    --lift-md: -3px;      /* cards, swatches */
+    --press-scale: 0.985;
+    --stagger: 65ms;      /* kakemono cascade step */
+    --color-name-tracking: 0.28em; /* shared by .color-name and its keyframe */
+
     --transition-bg: 1.4s var(--ease-out-expo);
-    --transition-ui: 0.25s var(--ease-out);
+    --transition-ui: var(--dur-tint) var(--ease-sumi);
     --palette-height: 0px;
     --touch-min: 2.75rem;
     --drawer-peek: 3.2rem;
@@ -19,6 +39,27 @@
 ::before,
 ::after {
     box-sizing: border-box;
+}
+
+/* ── Interaction primitives ──
+   One focus ring, one press gesture, applied to every control in the app.
+   Hover effects live inside `@media (hover: hover)` so a tap on a touch
+   device never leaves an element stuck in its hover state. */
+
+:where(button, [role='button'], input, a, .color-card, .variation-item, .reco-strip-cell, .reco-name-cell, .palette-item):focus-visible {
+    outline: 2px solid var(--ui-border-hover);
+    outline-offset: 3px;
+    border-radius: inherit;
+}
+
+.color-card:focus-visible,
+.variation-item:focus-visible {
+    outline-offset: 4px;
+}
+
+/* Press: every interactive surface yields slightly, then settles. */
+:where(button, [role='button'], .color-card, .variation-item, .reco-strip-cell, .reco-name-cell, .palette-item, .search-result-item):active {
+    transition-duration: var(--dur-press);
 }
 
 html {
@@ -136,14 +177,22 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color var(--transition-ui), transform var(--transition-ui);
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        opacity var(--dur-tint) var(--ease-sumi);
     opacity: 0.8;
 }
 
-.icon-btn:hover {
-    background-color: var(--ui-icon-hover-bg);
+@media (hover: hover) {
+    .icon-btn:hover {
+        background-color: var(--ui-icon-hover-bg);
+        opacity: 1;
+    }
+}
+
+.icon-btn:active {
     opacity: 1;
-    transform: rotate(15deg);
+    transform: scale(var(--press-scale));
 }
 
 .logo-group {
@@ -199,33 +248,36 @@ body {
     -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 1px 0 rgba(255, 252, 246, 0.3) inset;
     transition:
-        background-color var(--transition-ui),
-        color var(--transition-ui),
-        border-color var(--transition-ui),
-        transform 0.3s var(--ease-out-expo),
-        box-shadow var(--transition-ui);
+        background-color var(--dur-tint) var(--ease-sumi),
+        color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo),
+        box-shadow var(--dur-hover) var(--ease-sumi);
     white-space: nowrap;
 }
 
-.header-btn:hover {
-    color: var(--ui-text);
-    background: var(--ui-btn-bg-active);
-    border-color: var(--ui-border-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--ui-shadow-soft);
+@media (hover: hover) {
+    .header-btn:hover {
+        color: var(--ui-text);
+        background: var(--ui-btn-bg-active);
+        border-color: var(--ui-border-hover);
+        transform: translateY(var(--lift-sm));
+        box-shadow: var(--ui-shadow-soft);
+    }
+
+    .header-btn:hover svg {
+        opacity: 1;
+    }
 }
 
 .header-btn:active {
-    transform: translateY(0) scale(0.97);
+    transform: translateY(0) scale(var(--press-scale));
+    box-shadow: none;
 }
 
 .header-btn svg {
     opacity: 0.7;
-    transition: opacity var(--transition-ui);
-}
-
-.header-btn:hover svg {
-    opacity: 1;
+    transition: opacity var(--dur-tint) var(--ease-sumi);
 }
 
 .tagline {
@@ -256,7 +308,10 @@ body {
     font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
     font-size: 0.8rem;
     backdrop-filter: blur(8px);
-    transition: all var(--transition-ui);
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        box-shadow var(--dur-hover) var(--ease-sumi);
 }
 
 .search-input::placeholder {
@@ -313,10 +368,39 @@ body {
     width: 100%;
 }
 
-@keyframes color-detail-enter {
+/* ── Kakemono reveal ──
+   The hero is remounted on every colour change (React `key`), so these
+   animations re-run each time. Rather than sliding the block as one slab,
+   the scroll unfurls: rails draw outward, then the ink settles line by line.
+   The full cascade (0.45s of stagger + 0.9s of travel) lands just as the
+   1.4s background transition finishes, so nothing arrives before its colour. */
+
+@keyframes rail-unfurl {
     from {
         opacity: 0;
-        transform: translateY(18px);
+        transform: scaleX(0.15);
+    }
+    to {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}
+
+@keyframes knot-settle {
+    from {
+        opacity: 0;
+        transform: rotate(45deg) scale(0.4);
+    }
+    to {
+        opacity: 0.8;
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+@keyframes ink-rise {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -324,8 +408,66 @@ body {
     }
 }
 
-.color-detail-enter {
-    animation: color-detail-enter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+/* The name condenses into place, like a brushstroke finding its spacing. */
+@keyframes ink-settle {
+    from {
+        opacity: 0;
+        letter-spacing: calc(var(--color-name-tracking) + 0.12em);
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        letter-spacing: var(--color-name-tracking);
+        transform: translateY(0);
+    }
+}
+
+.color-detail-enter .scroll-ornament-bar {
+    transform-origin: center;
+    animation: rail-unfurl var(--dur-veil) var(--ease-out-expo) backwards;
+}
+
+.color-detail-enter .scroll-ornament-knot {
+    animation: knot-settle var(--dur-veil) var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--stagger) * 1);
+}
+
+.color-detail-enter .scroll-ornament--bottom .scroll-ornament-bar,
+.color-detail-enter .scroll-ornament--bottom .scroll-ornament-knot {
+    animation-delay: calc(var(--stagger) * 4);
+}
+
+.color-detail-enter .color-index,
+.color-detail-enter .color-hex-hero,
+.color-detail-enter .color-name-ja,
+.color-detail-enter .color-caption,
+.color-detail-enter .variation-section {
+    animation: ink-rise var(--dur-veil) var(--ease-sumi) backwards;
+}
+
+.color-detail-enter .color-index {
+    animation-delay: calc(var(--stagger) * 2);
+}
+
+.color-detail-enter .color-name {
+    animation: ink-settle var(--dur-veil) var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--stagger) * 3);
+}
+
+.color-detail-enter .color-hex-hero {
+    animation-delay: calc(var(--stagger) * 5);
+}
+
+.color-detail-enter .color-name-ja {
+    animation-delay: calc(var(--stagger) * 6);
+}
+
+.color-detail-enter .color-caption {
+    animation-delay: calc(var(--stagger) * 7);
+}
+
+.color-detail-enter .variation-section {
+    animation-delay: calc(var(--stagger) * 8);
 }
 
 /* Kakemono scroll frame */
@@ -392,9 +534,9 @@ body {
     margin: 0;
     font-size: clamp(2.85rem, 9.5vw, 5.25rem);
     font-weight: 700;
-    letter-spacing: 0.28em;
+    letter-spacing: var(--color-name-tracking);
     line-height: 1.12;
-    text-indent: 0.28em;
+    text-indent: var(--color-name-tracking);
 }
 
 .color-name-ja {
@@ -499,36 +641,54 @@ body {
     height: 2.75rem;
     border-radius: 50%;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0;
+    font: inherit;
     transition:
-        transform 0.35s var(--ease-out-expo),
-        box-shadow var(--transition-ui);
+        transform var(--dur-hover) var(--ease-out-expo),
+        border-color var(--dur-tint) var(--ease-sumi),
+        box-shadow var(--dur-hover) var(--ease-sumi);
     position: relative;
     border: 2px solid rgba(255, 252, 246, 0.22);
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
 }
 
-.variation-item:hover {
-    transform: translateY(-3px) scale(1.06);
-    z-index: 2;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+@media (hover: hover) {
+    .variation-item:hover {
+        transform: translateY(var(--lift-md));
+        border-color: rgba(255, 252, 246, 0.5);
+        z-index: 2;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+    }
+
+    .variation-item:hover::after {
+        opacity: 0.85;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
+.variation-item:active {
+    transform: translateY(0) scale(var(--press-scale));
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Hex floats above the swatch; the nearest colour name already sits below it. */
 .variation-item::after {
     content: attr(data-hex);
     position: absolute;
-    bottom: -1.75rem;
+    bottom: calc(100% + 0.4rem);
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(0.25rem);
     font-family: "Cormorant Garamond", "Noto Serif TC", serif;
     font-size: 0.6rem;
+    letter-spacing: 0.06em;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition:
+        opacity var(--dur-hover) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
     white-space: nowrap;
     pointer-events: none;
-}
-
-.variation-item:hover::after {
-    opacity: 1;
 }
 
 .variation-item-wrap {
@@ -545,6 +705,13 @@ body {
     letter-spacing: 0.08em;
     opacity: 0.8;
     margin-top: 0.35rem;
+    transition: opacity var(--dur-tint) var(--ease-sumi);
+}
+
+@media (hover: hover) {
+    .variation-item-wrap:hover .variation-label {
+        opacity: 1;
+    }
 }
 
 .color-values {
@@ -621,6 +788,11 @@ body {
 }
 
 .value-hex {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    color: inherit;
+    display: block;
     font-weight: 600;
     letter-spacing: 0.04em;
     padding: 0.25rem 0.6rem;
@@ -628,6 +800,19 @@ body {
     border-radius: 6px;
     cursor: copy;
     width: fit-content;
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+    .value-hex:hover {
+        background: var(--ui-bg-hover);
+    }
+}
+
+.value-hex:active {
+    transform: scale(var(--press-scale));
 }
 
 .value-toolbar {
@@ -661,7 +846,21 @@ body {
     cursor: pointer;
     padding: 0.2rem 0.45rem;
     font-size: 0.7rem;
-    transition: all var(--transition-ui);
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+    .export-format-btn:hover {
+        background: var(--ui-bg-hover);
+        border-color: var(--ui-border-hover);
+    }
+}
+
+.export-format-btn:active {
+    transform: scale(var(--press-scale));
 }
 
 .export-dropdown {
@@ -678,6 +877,19 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
+    transform-origin: top right;
+    animation: dropdown-unfold var(--dur-hover) var(--ease-out-expo);
+}
+
+@keyframes dropdown-unfold {
+    from {
+        opacity: 0;
+        transform: translateY(-0.35rem) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .export-opt {
@@ -690,11 +902,20 @@ body {
     font-size: 0.7rem;
     cursor: pointer;
     border-radius: 4px;
-    transition: background 0.12s;
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        color var(--dur-tint) var(--ease-sumi);
 }
 
-.export-opt:hover {
-    background: rgba(255, 255, 255, 0.12);
+@media (hover: hover) {
+    .export-opt:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+    }
+}
+
+.export-opt:active {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* WCAG */
@@ -852,11 +1073,21 @@ body {
     backdrop-filter: blur(8px);
     text-align: center;
     cursor: pointer;
-    transition: all var(--transition-ui);
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
 }
 
-.harmony-card:hover {
-    transform: translateY(-2px);
+@media (hover: hover) {
+    .harmony-card:hover {
+        transform: translateY(var(--lift-md));
+        border-color: var(--ui-border-hover);
+    }
+}
+
+.harmony-card:active {
+    transform: translateY(0) scale(var(--press-scale));
 }
 
 .harmony-swatch {
@@ -924,8 +1155,8 @@ body {
     -webkit-backdrop-filter: blur(18px) saturate(1.15);
     box-shadow: var(--ui-shadow-soft);
     transition:
-        transform 0.4s var(--ease-out-expo),
-        box-shadow var(--transition-ui);
+        transform var(--dur-hover) var(--ease-out-expo),
+        box-shadow var(--dur-hover) var(--ease-sumi);
     position: relative;
     overflow: hidden;
 }
@@ -941,9 +1172,11 @@ body {
     opacity: 0.5;
 }
 
-.reco-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--ui-shadow-card);
+@media (hover: hover) {
+    .reco-card:hover {
+        transform: translateY(var(--lift-md));
+        box-shadow: var(--ui-shadow-card);
+    }
 }
 
 .reco-card-header {
@@ -967,13 +1200,24 @@ body {
     border-radius: 4px;
     cursor: pointer;
     opacity: 0.72;
-    transition: all var(--transition-ui);
+    transition:
+        opacity var(--dur-tint) var(--ease-sumi),
+        background-color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
 }
 
-.reco-save-all:hover {
+@media (hover: hover) {
+    .reco-save-all:hover {
+        opacity: 1;
+        background: var(--ui-bg-hover);
+        border-color: var(--ui-border-hover);
+    }
+}
+
+.reco-save-all:active {
     opacity: 1;
-    background: var(--ui-bg-hover);
-    border-color: var(--ui-border-hover);
+    transform: scale(var(--press-scale));
 }
 
 .reco-label {
@@ -1009,15 +1253,58 @@ body {
     border: 1px solid var(--ui-border);
 }
 
+/* Hovering a cell must not resize its neighbours — a colour strip that
+   reflows under the cursor reads as a toy. The cell is marked in place
+   with an inset hairline and its hex surfaces inside the swatch, so the
+   proportions of the palette stay honest. */
 .reco-strip-cell {
     flex: 1;
     cursor: pointer;
-    transition: flex var(--transition-ui);
     position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        box-shadow var(--dur-hover) var(--ease-sumi),
+        filter var(--dur-tint) var(--ease-sumi);
 }
 
-.reco-strip-cell:hover {
-    flex: 1.5;
+.reco-strip-cell::after {
+    content: attr(data-hex);
+    font-family: "Cormorant Garamond", "Noto Sans TC", serif;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: currentColor;
+    opacity: 0;
+    transform: translateY(0.2rem);
+    transition:
+        opacity var(--dur-hover) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+@media (hover: hover) {
+    .reco-strip-cell:hover {
+        box-shadow: inset 0 0 0 2px rgba(255, 252, 246, 0.75);
+        z-index: 1;
+    }
+
+    .reco-strip-cell:hover::after {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reco-strip-cell:active {
+    filter: brightness(0.94);
 }
 
 /* Color names row in recommendations */
@@ -1028,6 +1315,10 @@ body {
 
 .reco-name-cell {
     flex: 1;
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: none;
     text-align: center;
     font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
     font-size: 0.65rem;
@@ -1039,6 +1330,21 @@ body {
     cursor: pointer;
     min-width: 0;
     padding-top: 0.35rem;
+    transition:
+        opacity var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+    .reco-name-cell:hover {
+        opacity: 1;
+        transform: translateY(var(--lift-sm));
+    }
+}
+
+.reco-name-cell:active {
+    opacity: 1;
+    transform: translateY(0) scale(var(--press-scale));
 }
 
 /* Filter Bar */
@@ -1066,11 +1372,44 @@ body {
     border-radius: 20px;
     cursor: pointer;
     color: inherit;
-    transition: all var(--transition-ui);
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
+}
+
+/* The swatch dot had a background colour but no box — it never rendered. */
+.hue-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 1px var(--ui-border);
+    transition: transform var(--dur-hover) var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+    .hue-btn:hover {
+        background: var(--ui-bg-hover);
+        border-color: var(--ui-border-hover);
+    }
+
+    .hue-btn:hover .hue-dot {
+        transform: scale(1.25);
+    }
+}
+
+.hue-btn:active {
+    transform: scale(var(--press-scale));
 }
 
 .hue-btn.active {
     background: var(--ui-btn-bg-active);
+    border-color: var(--ui-border-hover);
+}
+
+.hue-btn.active .hue-dot {
+    box-shadow: 0 0 0 1px var(--ui-border-hover), 0 0 6px var(--ui-accent-soft);
 }
 
 /* Color List */
@@ -1096,7 +1435,15 @@ body {
     justify-content: center;
 }
 
+.color-card-item {
+    position: relative;
+    display: flex;
+}
+
 .color-card {
+    appearance: none;
+    -webkit-appearance: none;
+    font-family: "LXGW WenKai TC", "Noto Serif TC", serif;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1104,12 +1451,31 @@ body {
     font-size: 0.9rem;
     font-weight: 500;
     border-radius: 6px;
-    transition: all var(--transition-ui);
+    transition:
+        transform var(--dur-hover) var(--ease-out-expo),
+        border-color var(--dur-tint) var(--ease-sumi),
+        box-shadow var(--dur-hover) var(--ease-sumi);
     cursor: pointer;
     border: 1.5px solid var(--ui-border);
     min-width: 3.5rem;
     position: relative;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+@media (hover: hover) {
+    .color-card:hover {
+        transform: translateY(var(--lift-sm)) scale(1.04);
+        border-color: var(--ui-border-hover);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+    }
+
+    .color-card-item:hover {
+        z-index: 2;
+    }
+
+    .color-card.active:hover {
+        transform: translateY(var(--lift-sm)) scale(1.08);
+    }
 }
 
 .color-card.active {
@@ -1118,8 +1484,17 @@ body {
     z-index: 3;
 }
 
+/* Declared after `.active` so pressing the selected card still yields. */
+.color-card:active,
+.color-card.active:active {
+    transform: scale(var(--press-scale));
+    box-shadow: none;
+}
+
 .fav-heart {
     position: absolute;
+    /* Above `.color-card.active`, which raises itself to z-index 3. */
+    z-index: 4;
     top: -0.2rem;
     right: -0.2rem;
     width: 1.1rem;
@@ -1132,18 +1507,50 @@ body {
     font-size: 0.55rem;
     cursor: pointer;
     opacity: 0;
-    transition: all var(--transition-ui);
+    transition:
+        opacity var(--dur-tint) var(--ease-sumi),
+        background-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
     color: #fff;
     border: none;
 }
 
-.color-card:hover .fav-heart,
 .fav-heart.is-fav {
+    opacity: 1;
+    background: #e74c5e;
+}
+
+@media (hover: hover) {
+    .color-card-item:hover .fav-heart {
+        opacity: 1;
+    }
+
+    .fav-heart:hover {
+        transform: scale(1.15);
+    }
+}
+
+/* Keyboard users need the heart to surface when it takes focus. */
+.fav-heart:focus-visible {
     opacity: 1;
 }
 
-.fav-heart.is-fav {
-    background: #e74c5e;
+/* Bloom on press — deterministic feedback, unlike animating the toggled
+   class, which would re-fire for every favourite whenever the list remounts. */
+.fav-heart:active {
+    animation: heart-bloom 420ms var(--ease-out-expo);
+}
+
+@keyframes heart-bloom {
+    0% {
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(1.4);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .palette-drawer {
@@ -1157,7 +1564,7 @@ body {
     -webkit-backdrop-filter: blur(32px) saturate(1.25);
     border-top: 1px solid var(--ui-card-border);
     transform: translateY(calc(100% - 3.2rem));
-    transition: transform 0.45s var(--ease-out-expo);
+    transition: transform var(--dur-panel) var(--ease-out-expo);
     color: var(--ui-text);
     box-shadow: 0 -20px 56px rgba(0, 0, 0, 0.14);
 }
@@ -1185,6 +1592,13 @@ body {
     padding: 0.75rem 2rem;
     cursor: pointer;
     user-select: none;
+    transition: background-color var(--dur-tint) var(--ease-sumi);
+}
+
+@media (hover: hover) {
+    .palette-header:hover {
+        background: var(--ui-bg-hover);
+    }
 }
 
 .palette-toggle {
@@ -1203,7 +1617,7 @@ body {
 }
 
 .palette-toggle-icon {
-    transition: transform 0.4s var(--ease-out);
+    transition: transform var(--dur-panel) var(--ease-out-expo);
     opacity: 0.8;
 }
 
@@ -1233,17 +1647,32 @@ body {
     letter-spacing: 0.1em;
     cursor: pointer;
     opacity: 0.65;
-    transition: all var(--transition-ui);
+    transition:
+        opacity var(--dur-tint) var(--ease-sumi),
+        color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi);
     padding: 0.2rem 0;
     border-bottom: 1px solid transparent;
 }
 
-.palette-action-btn:hover {
+@media (hover: hover) {
+    .palette-action-btn:hover {
+        opacity: 1;
+        border-bottom-color: currentColor;
+    }
+
+    .palette-action-btn.palette-clear:hover {
+        color: #f87171;
+        border-bottom-color: #f87171;
+    }
+}
+
+.palette-action-btn:active {
     opacity: 1;
     border-bottom-color: currentColor;
 }
 
-.palette-action-btn.palette-clear:hover {
+.palette-action-btn.palette-clear:active {
     color: #f87171;
     border-bottom-color: #f87171;
 }
@@ -1276,14 +1705,27 @@ body {
     border: 1px solid var(--ui-border);
     border-radius: 8px;
     cursor: pointer;
-    transition: all var(--transition-ui);
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
     min-width: 8rem;
 }
 
-.palette-item:hover {
-    background: var(--ui-bg-hover);
-    border-color: var(--ui-border-hover);
-    transform: translateY(-2px);
+@media (hover: hover) {
+    .palette-item:hover {
+        background: var(--ui-bg-hover);
+        border-color: var(--ui-border-hover);
+        transform: translateY(var(--lift-md));
+    }
+
+    .palette-item:hover .palette-remove {
+        opacity: 0.6;
+    }
+}
+
+.palette-item:active {
+    transform: translateY(0) scale(var(--press-scale));
 }
 
 .palette-swatch {
@@ -1308,18 +1750,27 @@ body {
     font-size: 1.1rem;
     cursor: pointer;
     opacity: 0;
-    transition: all var(--transition-ui);
+    transition:
+        opacity var(--dur-tint) var(--ease-sumi),
+        color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
     padding: 0 0.2rem;
     line-height: 1;
 }
 
-.palette-item:hover .palette-remove {
-    opacity: 0.6;
+@media (hover: hover) {
+    /* Matches the specificity of `.palette-item:hover .palette-remove`
+       above, and wins on order — no !important needed. */
+    .palette-item .palette-remove:hover {
+        opacity: 1;
+        color: #f87171;
+    }
 }
 
-.palette-remove:hover {
-    opacity: 1 !important;
+.palette-remove:active {
+    opacity: 1;
     color: #f87171;
+    transform: scale(0.9);
 }
 
 /* Toast */
@@ -1340,7 +1791,12 @@ body {
     -webkit-backdrop-filter: blur(20px) saturate(1.15);
     border: 1px solid var(--ui-card-border);
     box-shadow: var(--ui-shadow-elevated);
-    animation: toast-in 0.4s var(--ease-out-expo);
+    animation: toast-in var(--dur-panel) var(--ease-out-expo);
+}
+
+/* Exit duration is mirrored by TOAST_EXIT_MS in App.tsx. */
+.export-toast--leaving {
+    animation: toast-out 320ms var(--ease-sumi) forwards;
 }
 
 @keyframes toast-in {
@@ -1351,6 +1807,17 @@ body {
     to {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes toast-out {
+    from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-0.4rem);
     }
 }
 
@@ -1420,10 +1887,10 @@ body {
     backdrop-filter: blur(10px);
     box-shadow: var(--ui-shadow-soft), 0 0 0 1px var(--ui-accent-soft, rgba(168, 128, 56, 0.18));
     transition:
-        background-color var(--transition-ui),
-        border-color var(--transition-ui),
-        transform 0.35s var(--ease-out-expo),
-        box-shadow var(--transition-ui);
+        background-color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo),
+        box-shadow var(--dur-hover) var(--ease-sumi);
 }
 
 .color-hex-prefix {
@@ -1433,13 +1900,24 @@ body {
     margin-right: 0.1rem;
 }
 
-.color-hex-hero:hover,
 .color-hex-hero:focus-visible {
     background: var(--ui-bg-hover);
     border-color: var(--ui-border-hover);
-    transform: translateY(-1px);
     box-shadow: var(--ui-shadow-card);
-    outline: none;
+}
+
+@media (hover: hover) {
+    .color-hex-hero:hover {
+        background: var(--ui-bg-hover);
+        border-color: var(--ui-border-hover);
+        transform: translateY(var(--lift-sm));
+        box-shadow: var(--ui-shadow-card);
+    }
+}
+
+.color-hex-hero:active {
+    transform: translateY(0) scale(var(--press-scale));
+    box-shadow: var(--ui-shadow-soft);
 }
 
 /* Left edge rail — stacked slide panels, below header */
@@ -1471,7 +1949,7 @@ body {
     max-height: min(42vh, 22rem);
     width: min(22rem, calc(100vw - var(--touch-min)));
     transform: translateX(calc(-100% + var(--touch-min)));
-    transition: transform 0.4s var(--ease-out-expo);
+    transition: transform var(--dur-panel) var(--ease-out-expo);
     flex-shrink: 0;
 }
 
@@ -1497,14 +1975,23 @@ body {
     cursor: pointer;
     box-shadow: var(--ui-shadow-soft);
     transition:
-        background-color var(--transition-ui),
-        box-shadow var(--transition-ui);
+        background-color var(--dur-tint) var(--ease-sumi),
+        box-shadow var(--dur-hover) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
     pointer-events: auto;
 }
 
-.color-explorer-panel-tab:hover {
-    background: var(--ui-bg-hover);
-    box-shadow: var(--ui-shadow-card);
+/* The tab leans out from the edge, inviting the pull. */
+@media (hover: hover) {
+    .color-explorer-panel-tab:hover {
+        background: var(--ui-bg-hover);
+        box-shadow: var(--ui-shadow-card);
+        transform: translateX(2px);
+    }
+}
+
+.color-explorer-panel-tab:active {
+    transform: translateX(0) scale(var(--press-scale));
 }
 
 .color-explorer-panel-drawer {
@@ -1549,6 +2036,25 @@ body {
     color: inherit;
     cursor: pointer;
     border-radius: 50%;
+    opacity: 0.7;
+    transition:
+        opacity var(--dur-tint) var(--ease-sumi),
+        background-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+    .color-explorer-panel-close:hover,
+    .search-panel-close:hover {
+        opacity: 1;
+        background: var(--ui-bg-hover);
+    }
+}
+
+.color-explorer-panel-close:active,
+.search-panel-close:active {
+    opacity: 1;
+    transform: scale(0.92);
 }
 
 .color-explorer-panel-body {
@@ -1577,6 +2083,16 @@ body {
     z-index: 94;
     background: rgba(0, 0, 0, 0.18);
     backdrop-filter: blur(2px);
+    animation: veil-in var(--dur-panel) var(--ease-sumi);
+}
+
+@keyframes veil-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* Search panel — left edge, auto-collapsed */
@@ -1588,7 +2104,7 @@ body {
     max-height: min(36vh, 18rem);
     width: min(18rem, calc(100vw - var(--touch-min)));
     transform: translateX(calc(-100% + var(--touch-min)));
-    transition: transform 0.4s var(--ease-out-expo);
+    transition: transform var(--dur-panel) var(--ease-out-expo);
 }
 
 .search-panel.open {
@@ -1613,14 +2129,22 @@ body {
     cursor: pointer;
     box-shadow: var(--ui-shadow-soft);
     transition:
-        background-color var(--transition-ui),
-        box-shadow var(--transition-ui);
+        background-color var(--dur-tint) var(--ease-sumi),
+        box-shadow var(--dur-hover) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
     pointer-events: auto;
 }
 
-.search-panel-tab:hover {
-    background: var(--ui-bg-hover);
-    box-shadow: var(--ui-shadow-card);
+@media (hover: hover) {
+    .search-panel-tab:hover {
+        background: var(--ui-bg-hover);
+        box-shadow: var(--ui-shadow-card);
+        transform: translateX(2px);
+    }
+}
+
+.search-panel-tab:active {
+    transform: translateX(0) scale(var(--press-scale));
 }
 
 .search-panel-drawer {
@@ -1663,6 +2187,11 @@ body {
     color: inherit;
     cursor: pointer;
     border-radius: 50%;
+    opacity: 0.7;
+    transition:
+        opacity var(--dur-tint) var(--ease-sumi),
+        background-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
 }
 
 .search-results {
@@ -1688,10 +2217,25 @@ body {
     border-radius: 8px;
     text-align: left;
     font-family: inherit;
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
 }
 
-.search-result-item:hover {
+@media (hover: hover) {
+    .search-result-item:hover {
+        background: var(--ui-bg-hover);
+    }
+
+    .search-result-item:hover .search-result-swatch {
+        transform: scale(1.12);
+        border-color: var(--ui-border-hover);
+    }
+}
+
+.search-result-item:active {
     background: var(--ui-bg-hover);
+    transform: scale(var(--press-scale));
 }
 
 .search-result-swatch {
@@ -1700,6 +2244,9 @@ body {
     border-radius: 4px;
     border: 1px solid var(--ui-border);
     flex-shrink: 0;
+    transition:
+        transform var(--dur-hover) var(--ease-out-expo),
+        border-color var(--dur-tint) var(--ease-sumi);
 }
 
 .search-result-name {
@@ -1735,6 +2282,22 @@ body {
     background: var(--ui-bg);
     color: inherit;
     cursor: pointer;
+    transition:
+        background-color var(--dur-tint) var(--ease-sumi),
+        border-color var(--dur-tint) var(--ease-sumi),
+        opacity var(--dur-tint) var(--ease-sumi),
+        transform var(--dur-hover) var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+    .palette-reorder-btn:not(:disabled):hover {
+        background: var(--ui-bg-hover);
+        border-color: var(--ui-border-hover);
+    }
+}
+
+.palette-reorder-btn:not(:disabled):active {
+    transform: scale(0.92);
 }
 
 .palette-reorder-btn:disabled {
@@ -1747,6 +2310,9 @@ body {
     ::before,
     ::after {
         animation-duration: 0.01ms !important;
+        /* Without this the staggered reveal keeps its delays, and `backwards`
+           fill would hold each line invisible for up to half a second. */
+        animation-delay: 0s !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
@@ -1756,12 +2322,18 @@ body {
         transition: none;
     }
 
-    .export-toast {
-        animation: none;
+    .export-toast,
+    .export-dropdown,
+    .slide-panel-backdrop,
+    .fav-heart:active,
+    .color-detail-enter *,
+    .color-detail-enter .color-name {
+        animation: none !important;
     }
 
-    .color-detail-enter {
-        animation: none;
+    /* Press feedback stays, as a state change rather than a movement. */
+    :where(button, [role='button'], .color-card, .variation-item, .palette-item):active {
+        transform: none !important;
     }
 }
 
@@ -1816,9 +2388,8 @@ body {
     }
 
     .color-name {
+        --color-name-tracking: 0.22em;
         font-size: clamp(2.5rem, 12vw, 3.5rem);
-        letter-spacing: 0.22em;
-        text-indent: 0.22em;
     }
 
     .color-name-ja {
@@ -1945,14 +2516,18 @@ body {
         min-width: 0;
     }
 
+    /* The `calc(50% - 0.25rem)` term keeps each panel within its share of the
+       rail. Without it the two caps (48vh + 40vh) can exceed the rail's
+       height, and `justify-content: center` pushes the overflow upward until
+       the explorer's header disappears behind the sticky site header. */
     .left-edge-rail .color-explorer-panel {
         width: min(24rem, calc(100vw - var(--touch-min) - 2rem));
-        max-height: min(48vh, 26rem);
+        max-height: min(48vh, 26rem, calc(50% - 0.25rem));
     }
 
     .left-edge-rail .search-panel {
         width: min(20rem, calc(100vw - var(--touch-min) - 2rem));
-        max-height: min(40vh, 20rem);
+        max-height: min(40vh, 20rem, calc(50% - 0.25rem));
     }
 
     .color-name {
