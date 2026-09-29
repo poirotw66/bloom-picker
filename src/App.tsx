@@ -154,7 +154,8 @@ const App: React.FC = () => {
                                     onAddAll={handleAddAll}
                                     onShowToast={showToast}
                                 />
-                            </Suspense>                        </>
+                            </Suspense>
+                        </>
                     )}
                 </div>
             </main>

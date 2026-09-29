@@ -9,23 +9,18 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onRandomColor, onTodayColor }) => {
     return (
         <header className="header">
-            <div className="header-ornament" aria-hidden="true">
-                <span className="header-ornament-line" />
-                <span className="header-ornament-gem" />
-                <span className="header-ornament-line" />
-            </div>
-            <div className="header-top">
+            <div className="header-island">
                 <div className="logo-group">
                     <div className="logo">雅色</div>
-                    <div className="logo-sub">BLOOM PICKER</div>
+                    <div className="logo-sub">Bloom Picker</div>
                 </div>
-                <div className="header-actions">
+                <nav className="header-actions" aria-label="靈感探索">
                     <button
                         type="button"
                         className="header-btn touch-target"
                         onClick={onTodayColor}
                     >
-                        <Sunrise size={14} strokeWidth={1.5} />
+                        <Sunrise size={15} strokeWidth={1.5} aria-hidden="true" />
                         <span>今日之色</span>
                     </button>
                     <button
@@ -33,12 +28,11 @@ export const Header: React.FC<HeaderProps> = ({ onRandomColor, onTodayColor }) =
                         className="header-btn touch-target"
                         onClick={onRandomColor}
                     >
-                        <Shuffle size={14} strokeWidth={1.5} />
+                        <Shuffle size={15} strokeWidth={1.5} aria-hidden="true" />
                         <span>隨機一色</span>
                     </button>
-                </div>
+                </nav>
             </div>
-            <p className="tagline">傳統色彩 · 雅緻選色</p>
         </header>
     );
 };
