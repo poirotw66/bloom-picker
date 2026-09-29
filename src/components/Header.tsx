@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sunrise, Shuffle } from 'lucide-react';
+import { ArrowLeft, Sunrise, Shuffle } from 'lucide-react';
 
 interface HeaderProps {
     onRandomColor: () => void;
@@ -35,6 +35,16 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
                 {showActions && (
                     <nav className="header-actions" aria-label="靈感探索">
+                        {onGoHome && (
+                            <button
+                                type="button"
+                                className="header-btn header-btn--home touch-target"
+                                onClick={onGoHome}
+                            >
+                                <ArrowLeft size={15} strokeWidth={1.5} aria-hidden="true" />
+                                <span>返回首頁</span>
+                            </button>
+                        )}
                         <button
                             type="button"
                             className="header-btn touch-target"

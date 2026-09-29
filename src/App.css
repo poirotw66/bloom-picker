@@ -289,6 +289,16 @@ body {
     transition: opacity var(--dur-tint) var(--ease-sumi);
 }
 
+.header-btn--home {
+    color: var(--ui-text);
+    border-color: var(--ui-border-hover);
+    background: var(--ui-btn-bg-active);
+}
+
+.header-btn--home svg {
+    opacity: 0.85;
+}
+
 .tagline {
     margin: 0;
     font-family: "Noto Serif TC", "LXGW WenKai TC", serif;
@@ -518,15 +528,15 @@ body {
     margin: 1.5rem auto 0;
     padding: 0;
     border: none;
-    font-family: "Noto Sans TC", "Outfit", sans-serif;
-    font-size: 0.9rem;
+    font-family: "LXGW WenKai TC", "Noto Serif TC", "Noto Sans TC", serif;
+    font-size: 0.95rem;
     font-weight: 400;
     font-style: normal;
-    letter-spacing: 0.02em;
-    line-height: 1.85;
+    letter-spacing: 0.04em;
+    line-height: 1.95;
     color: var(--ui-text-secondary);
     text-align: left;
-    max-width: 34em;
+    max-width: min(36em, 100%);
     text-wrap: pretty;
 }
 
@@ -2245,10 +2255,19 @@ body {
         text-indent: 0.18em;
     }
 
+    .header-actions {
+        gap: 0.35rem;
+    }
+
     .header-btn {
         min-height: var(--touch-min);
-        padding: 0.5rem 0.75rem;
+        padding: 0.5rem 0.65rem;
         font-size: 0.68rem;
+    }
+
+    .header-btn--home {
+        padding-left: 0.55rem;
+        padding-right: 0.55rem;
     }
 
     .main {
@@ -2277,8 +2296,11 @@ body {
     }
 
     .color-caption {
-        font-size: 0.78rem;
-        max-width: none;
+        font-size: 0.86rem;
+        line-height: 1.9;
+        max-width: 28em;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .variation-section {
