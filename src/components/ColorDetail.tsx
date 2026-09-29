@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { ColorData } from '../data/colors';
 import { COLOR_CAPTIONS } from '../data/colorCaptions';
 import { hexToRgb, rgbToCmyk, rgbToHsl } from '../utils/colorConverter';
@@ -76,46 +77,29 @@ export const ColorDetail: React.FC<ColorDetailProps> = memo(function ColorDetail
     return (
         <div className="color-display">
             <div key={color.name} className="display-main color-detail-enter">
-                <div className="scroll-frame">
-                    <div className="scroll-ornament scroll-ornament--top" aria-hidden="true">
-                        <span className="scroll-ornament-bar" />
-                        <span className="scroll-ornament-knot" />
-                        <span className="scroll-ornament-bar" />
-                    </div>
-
-                    <div className="scroll-body">
-                        <p className="color-index" aria-hidden="true">
-                            傳統色 · {color.id}
+                <div className="hero-copy">
+                    <h1 className="color-name">{color.nameTW}</h1>
+                    {showHeroHex && (
+                        <button
+                            type="button"
+                            className="color-hex-hero touch-target"
+                            onClick={() => copy(color.hex)}
+                            aria-label={`複製色碼 ${color.hex}`}
+                        >
+                            <span className="color-hex-prefix" aria-hidden="true">#</span>
+                            {color.hex.replace('#', '')}
+                        </button>
+                    )}
+                    <p className="color-name-ja">
+                        <span className="color-name-ja-label">{color.nameJA}</span>
+                        <span className="color-name-ja-sep" aria-hidden="true">/</span>
+                        <span className="color-name-ja-slug">{color.name}</span>
+                    </p>
+                    {COLOR_CAPTIONS[color.name] && (
+                        <p className="color-caption">
+                            {COLOR_CAPTIONS[color.name]}
                         </p>
-                        <h1 className="color-name">{color.nameTW}</h1>
-                        {showHeroHex && (
-                            <button
-                                type="button"
-                                className="color-hex-hero touch-target"
-                                onClick={() => copy(color.hex)}
-                                aria-label={`複製色碼 ${color.hex}`}
-                            >
-                                <span className="color-hex-prefix" aria-hidden="true">#</span>
-                                {color.hex.replace('#', '')}
-                            </button>
-                        )}
-                        <p className="color-name-ja">
-                            <span className="color-name-ja-label">{color.nameJA}</span>
-                            <span className="color-name-ja-sep" aria-hidden="true">·</span>
-                            <span className="color-name-ja-slug">{color.name}</span>
-                        </p>
-                        {COLOR_CAPTIONS[color.name] && (
-                            <blockquote className="color-caption">
-                                {COLOR_CAPTIONS[color.name]}
-                            </blockquote>
-                        )}
-                    </div>
-
-                    <div className="scroll-ornament scroll-ornament--bottom" aria-hidden="true">
-                        <span className="scroll-ornament-bar" />
-                        <span className="scroll-ornament-knot" />
-                        <span className="scroll-ornament-bar" />
-                    </div>
+                    )}
                 </div>
 
                 <div className="variation-section">
@@ -140,103 +124,106 @@ export const ColorDetail: React.FC<ColorDetailProps> = memo(function ColorDetail
                 </div>
             </div>
 
-            <div className="color-values">
-                <dl className="value-list">
-                    <div className="value-entry">
-                        <dt className="value-label">CMYK</dt>
-                        <dd className="value">{cmyk.c}, {cmyk.m}, {cmyk.y}, {cmyk.k}</dd>
-                    </div>
-                    <div className="value-entry">
-                        <dt className="value-label">RGB</dt>
-                        <dd className="value">{rgb.r}, {rgb.g}, {rgb.b}</dd>
-                    </div>
-                    <div className="value-entry">
-                        <dt className="value-label">HSL</dt>
-                        <dd className="value">
-                            {Math.round(hsl.h)}°, {Math.round(hsl.s)}%, {Math.round(hsl.l)}%
-                        </dd>
-                    </div>
-                    {!showHeroHex && (
+            <div className="color-values-shell">
+                <div className="color-values">
+                    <dl className="value-list">
                         <div className="value-entry">
-                            <dt className="value-label">HEX</dt>
+                            <dt className="value-label">CMYK</dt>
+                            <dd className="value">{cmyk.c}, {cmyk.m}, {cmyk.y}, {cmyk.k}</dd>
+                        </div>
+                        <div className="value-entry">
+                            <dt className="value-label">RGB</dt>
+                            <dd className="value">{rgb.r}, {rgb.g}, {rgb.b}</dd>
+                        </div>
+                        <div className="value-entry">
+                            <dt className="value-label">HSL</dt>
                             <dd className="value">
-                                <button
-                                    type="button"
-                                    className="value value-hex"
-                                    aria-label={`複製色碼 ${color.hex}`}
-                                    onClick={() => copy(color.hex)}
-                                >
-                                    {color.hex.replace('#', '')}
-                                </button>
+                                {Math.round(hsl.h)}°, {Math.round(hsl.s)}%, {Math.round(hsl.l)}%
                             </dd>
                         </div>
-                    )}
-                </dl>
-
-                <div className="value-toolbar">
-                    <span className="value-toolbar-label">匯出格式</span>
-                    <div className="export-dropdown-wrap" ref={dropdownRef}>
-                        <button
-                            type="button"
-                            className="export-format-btn touch-target"
-                            onClick={() => setDropdownOpen(!dropdownOpen)}
-                            aria-expanded={dropdownOpen}
-                            aria-haspopup="menu"
-                        >
-                            ▼ 格式
-                        </button>
-                        {dropdownOpen && (
-                            <div className="export-dropdown" role="menu">
-                                <button type="button" className="export-opt" onClick={() => exportSingle('css')}>CSS Variable</button>
-                                <button type="button" className="export-opt" onClick={() => exportSingle('scss')}>SCSS Variable</button>
-                                <button type="button" className="export-opt" onClick={() => exportSingle('rgb')}>RGB Formula</button>
-                                <button type="button" className="export-opt" onClick={() => exportSingle('hsl')}>HSL Formula</button>
+                        {!showHeroHex && (
+                            <div className="value-entry">
+                                <dt className="value-label">HEX</dt>
+                                <dd className="value">
+                                    <button
+                                        type="button"
+                                        className="value value-hex"
+                                        aria-label={`複製色碼 ${color.hex}`}
+                                        onClick={() => copy(color.hex)}
+                                    >
+                                        {color.hex.replace('#', '')}
+                                    </button>
+                                </dd>
                             </div>
                         )}
-                    </div>
-                </div>
+                    </dl>
 
-                <div className="wcag-checker">
-                    <p className="wcag-heading">無障礙對比</p>
-                    <div className="wcag-row">
-                        <div className="wcag-preview">
-                            <div className="wcag-sample wcag-white" style={{ backgroundColor: color.hex }}>Aa</div>
-                            <span className="wcag-ratio">{formatRatio(ratioWhite)}</span>
-                            <span className="wcag-legend">白字</span>
-                        </div>
-                        <div className="wcag-results">
-                            <div className="wcag-item">
-                                <span className={`wcag-badge ${wcagGrade(ratioWhite, 4.5)}`}>
-                                    {wcagIcon(wcagGrade(ratioWhite, 4.5))} AA
-                                </span>
-                                <span className="wcag-desc">大文本 / 圖表</span>
-                            </div>
-                            <div className="wcag-item">
-                                <span className={`wcag-badge ${wcagGrade(ratioWhite, 7)}`}>
-                                    {wcagIcon(wcagGrade(ratioWhite, 7))} AAA
-                                </span>
-                                <span className="wcag-desc">所有大小文字</span>
-                            </div>
+                    <div className="value-toolbar">
+                        <span className="value-toolbar-label">匯出格式</span>
+                        <div className="export-dropdown-wrap" ref={dropdownRef}>
+                            <button
+                                type="button"
+                                className="export-format-btn touch-target"
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                aria-expanded={dropdownOpen}
+                                aria-haspopup="menu"
+                            >
+                                格式
+                                <ChevronDown size={12} strokeWidth={1.75} aria-hidden="true" />
+                            </button>
+                            {dropdownOpen && (
+                                <div className="export-dropdown" role="menu">
+                                    <button type="button" className="export-opt" onClick={() => exportSingle('css')}>CSS Variable</button>
+                                    <button type="button" className="export-opt" onClick={() => exportSingle('scss')}>SCSS Variable</button>
+                                    <button type="button" className="export-opt" onClick={() => exportSingle('rgb')}>RGB Formula</button>
+                                    <button type="button" className="export-opt" onClick={() => exportSingle('hsl')}>HSL Formula</button>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    <div className="wcag-row">
-                        <div className="wcag-preview">
-                            <div className="wcag-sample wcag-black" style={{ backgroundColor: color.hex }}>Aa</div>
-                            <span className="wcag-ratio">{formatRatio(ratioBlack)}</span>
-                            <span className="wcag-legend">黑字</span>
-                        </div>
-                        <div className="wcag-results">
-                            <div className="wcag-item">
-                                <span className={`wcag-badge ${wcagGrade(ratioBlack, 4.5)}`}>
-                                    {wcagIcon(wcagGrade(ratioBlack, 4.5))} AA
-                                </span>
-                                <span className="wcag-desc">大文本 / 圖表</span>
+
+                    <div className="wcag-checker">
+                        <p className="wcag-heading">無障礙對比</p>
+                        <div className="wcag-row">
+                            <div className="wcag-preview">
+                                <div className="wcag-sample wcag-white" style={{ backgroundColor: color.hex }}>Aa</div>
+                                <span className="wcag-ratio">{formatRatio(ratioWhite)}</span>
+                                <span className="wcag-legend">白字</span>
                             </div>
-                            <div className="wcag-item">
-                                <span className={`wcag-badge ${wcagGrade(ratioBlack, 7)}`}>
-                                    {wcagIcon(wcagGrade(ratioBlack, 7))} AAA
-                                </span>
-                                <span className="wcag-desc">所有大小文字</span>
+                            <div className="wcag-results">
+                                <div className="wcag-item">
+                                    <span className={`wcag-badge ${wcagGrade(ratioWhite, 4.5)}`}>
+                                        {wcagIcon(wcagGrade(ratioWhite, 4.5))} AA
+                                    </span>
+                                    <span className="wcag-desc">大文本 / 圖表</span>
+                                </div>
+                                <div className="wcag-item">
+                                    <span className={`wcag-badge ${wcagGrade(ratioWhite, 7)}`}>
+                                        {wcagIcon(wcagGrade(ratioWhite, 7))} AAA
+                                    </span>
+                                    <span className="wcag-desc">所有大小文字</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="wcag-row">
+                            <div className="wcag-preview">
+                                <div className="wcag-sample wcag-black" style={{ backgroundColor: color.hex }}>Aa</div>
+                                <span className="wcag-ratio">{formatRatio(ratioBlack)}</span>
+                                <span className="wcag-legend">黑字</span>
+                            </div>
+                            <div className="wcag-results">
+                                <div className="wcag-item">
+                                    <span className={`wcag-badge ${wcagGrade(ratioBlack, 4.5)}`}>
+                                        {wcagIcon(wcagGrade(ratioBlack, 4.5))} AA
+                                    </span>
+                                    <span className="wcag-desc">大文本 / 圖表</span>
+                                </div>
+                                <div className="wcag-item">
+                                    <span className={`wcag-badge ${wcagGrade(ratioBlack, 7)}`}>
+                                        {wcagIcon(wcagGrade(ratioBlack, 7))} AAA
+                                    </span>
+                                    <span className="wcag-desc">所有大小文字</span>
+                                </div>
                             </div>
                         </div>
                     </div>
