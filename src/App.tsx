@@ -139,12 +139,13 @@ const App: React.FC = () => {
                 </>
             )}
 
-            <Header
-                onRandomColor={handleRandomColor}
-                onTodayColor={handleTodayColor}
-                onGoHome={handleGoHome}
-                showActions={!isHome}
-            />
+            {!isHome && (
+                <Header
+                    onRandomColor={handleRandomColor}
+                    onTodayColor={handleTodayColor}
+                    onGoHome={handleGoHome}
+                />
+            )}
 
             {isHome ? (
                 <main className="main main--home">

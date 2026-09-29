@@ -2426,25 +2426,13 @@ body {
         gap: 1.15rem;
     }
 }
-/* ── Color Home landing ── */
+/* ── Color Home landing (taste-skill: editorial split + full-bleed mosaic) ── */
 .main--home {
     padding: 0;
     padding-left: 0;
     align-items: stretch;
     width: 100%;
     max-width: none;
-}
-
-.app-container--home .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-}
-
-.app-container--home .header-island {
-    max-width: min(1120px, calc(100% - 1.5rem));
 }
 
 .color-home {
@@ -2457,141 +2445,45 @@ body {
     position: fixed;
     inset: 0;
     z-index: -2;
-    transition: background-color 0.7s var(--ease-out-expo);
+    transition: background-color 0.85s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-.home-ambient-veil {
+.home-grain {
     position: fixed;
     inset: 0;
-    z-index: -1;
+    z-index: 60;
     pointer-events: none;
-    background:
-        linear-gradient(180deg, rgba(12, 16, 22, 0.55) 0%, rgba(12, 16, 22, 0.28) 42%, rgba(12, 16, 22, 0.72) 100%),
-        radial-gradient(ellipse 80% 60% at 70% 40%, transparent 20%, rgba(8, 10, 14, 0.45) 100%);
-}
-
-.home-ambient-veil::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.2;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
-    background-size: 200px 200px;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
     mix-blend-mode: soft-light;
 }
 
+/* Full-bleed mosaic is the hero visual plane */
 .home-hero {
+    position: relative;
     min-height: 100dvh;
-    display: grid;
-    grid-template-columns: 1fr;
-    align-items: end;
-    gap: 1.5rem;
-    padding: 6.5rem 1.25rem calc(var(--drawer-peek) + 2.5rem);
-    position: relative;
-}
-
-.home-hero-copy {
-    position: relative;
-    z-index: 2;
-    max-width: 22rem;
-}
-
-.home-brand {
-    margin: 0 0 0.85rem;
-    font-family: "LXGW WenKai TC", "Noto Sans TC", serif;
-    font-size: clamp(2.75rem, 10vw, 4.25rem);
-    font-weight: 700;
-    letter-spacing: 0.32em;
-    text-indent: 0.32em;
-    line-height: 1.05;
-}
-
-.home-headline {
-    margin: 0;
-    font-family: "LXGW WenKai TC", "Noto Sans TC", serif;
-    font-size: clamp(1.35rem, 4.5vw, 1.75rem);
-    font-weight: 400;
-    letter-spacing: 0.18em;
-    line-height: 1.35;
-    opacity: 0.9;
-}
-
-.home-lead {
-    margin: 0.85rem 0 0;
-    font-family: "Outfit", "Noto Sans TC", sans-serif;
-    font-size: 0.95rem;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    line-height: 1.7;
-    color: rgba(244, 247, 250, 0.72);
-    max-width: 20em;
-}
-
-.home-ctas {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-top: 1.5rem;
-}
-
-.home-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-height: var(--touch-min);
-    padding: 0.7rem 1.2rem;
-    border-radius: 999px;
-    font-family: "Outfit", "Noto Sans TC", sans-serif;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    transition:
-        transform var(--dur-hover) var(--ease-out-expo),
-        background-color var(--dur-tint) var(--ease-sumi),
-        border-color var(--dur-tint) var(--ease-sumi),
-        color var(--dur-tint) var(--ease-sumi);
-}
-
-.home-cta--primary {
-    color: rgba(18, 22, 28, 0.92);
-    background: rgba(244, 247, 250, 0.92);
-    border: 1px solid rgba(244, 247, 250, 0.95);
-}
-
-.home-cta--ghost {
-    color: rgba(244, 247, 250, 0.92);
-    background: rgba(244, 247, 250, 0.08);
-    border: 1px solid rgba(244, 247, 250, 0.28);
-}
-
-@media (hover: hover) {
-    .home-cta--primary:hover {
-        transform: translateY(var(--lift-sm));
-        background: #fff;
-    }
-
-    .home-cta--ghost:hover {
-        transform: translateY(var(--lift-sm));
-        background: rgba(244, 247, 250, 0.16);
-        border-color: rgba(244, 247, 250, 0.45);
-    }
-}
-
-.home-cta:active {
-    transform: scale(var(--press-scale));
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    padding: 0;
 }
 
 .home-mosaic {
+    position: absolute;
+    inset: 0;
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0.35rem;
+    grid-auto-rows: minmax(12vw, 1fr);
+    gap: 0.2rem;
+    padding: 0.2rem;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: none;
     width: 100%;
-    max-width: 28rem;
-    margin-left: auto;
-    border-radius: 1.25rem;
-    overflow: hidden;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+    height: 100%;
 }
 
 .home-mosaic-cell {
@@ -2600,146 +2492,348 @@ body {
     border: none;
     margin: 0;
     padding: 0;
-    aspect-ratio: 1;
     cursor: pointer;
     position: relative;
     min-width: 0;
-    transition: transform var(--dur-hover) var(--ease-out-expo), filter var(--dur-tint) var(--ease-sumi);
+    min-height: 0;
+    border-radius: 0.35rem;
+    overflow: hidden;
+    animation: home-rise 0.9s cubic-bezier(0.32, 0.72, 0, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 14ms);
+    transition:
+        transform 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+        filter 0.35s cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.home-mosaic-cell--lg {
+    grid-column: span 2;
+    grid-row: span 2;
+    border-radius: 0.55rem;
 }
 
 .home-mosaic-label {
     position: absolute;
-    inset: auto 0 0.2rem;
+    left: 0.45rem;
+    right: 0.45rem;
+    bottom: 0.4rem;
     font-family: "LXGW WenKai TC", serif;
-    font-size: 0.55rem;
-    letter-spacing: 0.06em;
-    text-align: center;
+    font-size: clamp(0.62rem, 1.4vw, 0.85rem);
+    letter-spacing: 0.12em;
+    text-align: left;
     opacity: 0;
-    transition: opacity var(--dur-tint) var(--ease-sumi);
+    transform: translateY(0.25rem);
+    transition:
+        opacity 0.35s cubic-bezier(0.32, 0.72, 0, 1),
+        transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
     pointer-events: none;
 }
 
 @media (hover: hover) {
     .home-mosaic-cell:hover {
-        transform: scale(1.08);
-        z-index: 2;
-        filter: saturate(1.08);
+        transform: scale(1.03);
+        z-index: 3;
+        filter: saturate(1.06) brightness(1.03);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
     }
 
     .home-mosaic-cell:hover .home-mosaic-label {
         opacity: 0.95;
+        transform: translateY(0);
     }
+}
+
+.home-mosaic-cell:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+    z-index: 4;
 }
 
 .home-mosaic-cell:focus-visible .home-mosaic-label {
     opacity: 0.95;
+    transform: translateY(0);
 }
 
 .home-mosaic-cell:active {
+    transform: scale(0.985);
+}
+
+.home-hero-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        linear-gradient(105deg, rgba(10, 12, 16, 0.82) 0%, rgba(10, 12, 16, 0.55) 38%, rgba(10, 12, 16, 0.12) 68%, transparent 100%),
+        linear-gradient(180deg, rgba(10, 12, 16, 0.2) 0%, transparent 35%, rgba(10, 12, 16, 0.55) 100%);
+}
+
+.home-hero-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 28rem;
+    padding: 5.5rem 1.35rem 6.5rem;
+    pointer-events: none;
+}
+
+.home-hero-copy > * {
+    pointer-events: auto;
+    animation: home-rise 1s cubic-bezier(0.32, 0.72, 0, 1) backwards;
+}
+
+.home-hero-copy > *:nth-child(1) { animation-delay: 80ms; }
+.home-hero-copy > *:nth-child(2) { animation-delay: 160ms; }
+.home-hero-copy > *:nth-child(3) { animation-delay: 240ms; }
+.home-hero-copy > *:nth-child(4) { animation-delay: 320ms; }
+
+@keyframes home-rise {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+        filter: blur(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+.home-brand {
+    margin: 0 0 1rem;
+    font-family: "LXGW WenKai TC", "Noto Sans TC", serif;
+    font-size: clamp(3.5rem, 12vw, 6.5rem);
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-indent: 0.28em;
+    line-height: 1.02;
+}
+
+.home-headline {
+    margin: 0;
+    font-family: "LXGW WenKai TC", "Noto Sans TC", serif;
+    font-size: clamp(1.2rem, 3.2vw, 1.55rem);
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+.home-lead {
+    margin: 1rem 0 0;
+    font-family: "Outfit", "Noto Sans TC", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    line-height: 1.75;
+    color: rgba(244, 247, 250, 0.72);
+    max-width: 18em;
+}
+
+.home-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.85rem;
+}
+
+.home-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 3rem;
+    padding: 0.35rem 0.4rem 0.35rem 1.2rem;
+    border-radius: 999px;
+    font-family: "Outfit", "Noto Sans TC", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition:
+        transform 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+        background-color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+        border-color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.home-cta-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 999px;
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.home-cta--primary {
+    color: rgba(18, 22, 28, 0.94);
+    background: rgba(244, 247, 250, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+
+.home-cta--primary .home-cta-icon {
+    background: rgba(18, 22, 28, 0.08);
+}
+
+.home-cta--ghost {
+    color: rgba(244, 247, 250, 0.94);
+    background: rgba(244, 247, 250, 0.08);
+    border: 1px solid rgba(244, 247, 250, 0.28);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.home-cta--ghost .home-cta-icon {
+    background: rgba(244, 247, 250, 0.1);
+}
+
+@media (hover: hover) {
+    .home-cta--primary:hover {
+        transform: translateY(-2px);
+        background: #fff;
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+    }
+
+    .home-cta--ghost:hover {
+        transform: translateY(-2px);
+        background: rgba(244, 247, 250, 0.14);
+        border-color: rgba(244, 247, 250, 0.42);
+    }
+
+    .home-cta:hover .home-cta-icon {
+        transform: translate(1px, -1px) scale(1.05);
+    }
+}
+
+.home-cta:active {
     transform: scale(0.98);
 }
 
-.home-preview-name {
+.home-preview {
     position: absolute;
-    right: 1.25rem;
+    z-index: 2;
+    left: 1.35rem;
+    right: 1.35rem;
     bottom: calc(var(--drawer-peek) + 1rem);
-    margin: 0;
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.65rem;
-    font-family: "LXGW WenKai TC", serif;
-    font-size: 1rem;
-    letter-spacing: 0.16em;
-    color: rgba(244, 247, 250, 0.92);
+    gap: 0.55rem 1rem;
     pointer-events: none;
-    animation: ink-rise 0.35s var(--ease-sumi);
+    min-height: 1.5rem;
 }
 
-.home-preview-hex {
+.home-preview-name {
+    font-family: "LXGW WenKai TC", serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.18em;
+    animation: home-rise 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.home-preview-meta {
     font-family: "Outfit", "Noto Sans TC", sans-serif;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     letter-spacing: 0.08em;
     opacity: 0.65;
 }
 
+.home-preview-sep {
+    margin: 0 0.4rem;
+    opacity: 0.4;
+}
+
+.home-preview-hint {
+    font-family: "Outfit", "Noto Sans TC", sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    opacity: 0.45;
+}
+
+/* Gallery — airy catalogue */
 .home-gallery {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 1120px;
+    max-width: 1180px;
     margin: 0 auto;
-    padding: 2.5rem 1.25rem calc(var(--drawer-peek) + 3.5rem);
+    padding: 5.5rem 1.35rem calc(var(--drawer-peek) + 4.5rem);
+    background: linear-gradient(180deg, rgba(12, 14, 18, 0.92) 0%, rgba(16, 18, 24, 0.98) 18%, #12151c 100%);
 }
 
-.home-gallery-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
+.home-gallery-intro {
+    max-width: 28rem;
+    margin-bottom: 2.25rem;
+    animation: home-rise 0.9s cubic-bezier(0.32, 0.72, 0, 1) backwards;
 }
 
 .home-gallery-title {
     margin: 0;
-    font-family: "Outfit", "Noto Sans TC", sans-serif;
-    font-size: 0.78rem;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    opacity: 0.75;
+    font-family: "LXGW WenKai TC", serif;
+    font-size: clamp(1.75rem, 4vw, 2.35rem);
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
 }
 
-.home-gallery-count {
-    margin: 0;
+.home-gallery-lead {
+    margin: 0.75rem 0 0;
     font-family: "Outfit", "Noto Sans TC", sans-serif;
-    font-size: 0.75rem;
-    font-variant-numeric: tabular-nums;
-    opacity: 0.55;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: rgba(244, 247, 250, 0.58);
+    max-width: 22em;
 }
 
 .home-gallery-tools {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    margin-bottom: 1.5rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.home-search-shell {
+    padding: 0.3rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    max-width: 26rem;
 }
 
 .home-search {
     position: relative;
-    max-width: 22rem;
 }
 
 .home-search-icon {
     position: absolute;
-    left: 0.9rem;
+    left: 0.95rem;
     top: 50%;
     transform: translateY(-50%);
-    opacity: 0.55;
+    opacity: 0.5;
     pointer-events: none;
 }
 
 .home-search-input {
     width: 100%;
     min-height: var(--touch-min);
-    padding: 0.65rem 0.9rem 0.65rem 2.5rem;
+    padding: 0.7rem 1rem 0.7rem 2.55rem;
     border-radius: 999px;
-    border: 1px solid rgba(244, 247, 250, 0.18);
-    background: rgba(244, 247, 250, 0.08);
+    border: 1px solid rgba(244, 247, 250, 0.1);
+    background: rgba(244, 247, 250, 0.06);
     color: inherit;
     font-family: "Outfit", "Noto Sans TC", sans-serif;
-    font-size: 0.88rem;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    font-size: 0.9rem;
 }
 
 .home-search-input::placeholder {
-    color: rgba(244, 247, 250, 0.45);
+    color: rgba(244, 247, 250, 0.4);
 }
 
 .home-search-input:focus {
     outline: none;
-    border-color: rgba(244, 247, 250, 0.4);
-    background: rgba(244, 247, 250, 0.12);
+    border-color: rgba(244, 247, 250, 0.32);
+    background: rgba(244, 247, 250, 0.1);
 }
 
 .home-hues {
@@ -2749,33 +2843,43 @@ body {
 }
 
 .home-hue-btn {
-    min-height: 2.25rem;
-    padding: 0.4rem 0.85rem;
+    min-height: 2.35rem;
+    padding: 0.4rem 0.9rem;
     border-radius: 999px;
-    border: 1px solid rgba(244, 247, 250, 0.16);
-    background: rgba(244, 247, 250, 0.06);
-    color: rgba(244, 247, 250, 0.78);
+    border: 1px solid rgba(244, 247, 250, 0.12);
+    background: transparent;
+    color: rgba(244, 247, 250, 0.7);
     font-family: "Outfit", "Noto Sans TC", sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
     cursor: pointer;
     transition:
-        background-color var(--dur-tint) var(--ease-sumi),
-        border-color var(--dur-tint) var(--ease-sumi),
-        color var(--dur-tint) var(--ease-sumi);
+        background-color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+        border-color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+        color 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .home-hue-btn.is-active {
-    background: rgba(244, 247, 250, 0.92);
-    border-color: rgba(244, 247, 250, 0.92);
+    background: rgba(244, 247, 250, 0.94);
+    border-color: rgba(244, 247, 250, 0.94);
     color: rgba(18, 22, 28, 0.92);
 }
 
 @media (hover: hover) {
     .home-hue-btn:hover:not(.is-active) {
-        background: rgba(244, 247, 250, 0.12);
         border-color: rgba(244, 247, 250, 0.28);
+        color: rgba(244, 247, 250, 0.92);
     }
+}
+
+.home-gallery-count {
+    margin: 0 0 1.35rem;
+    font-family: "Outfit", "Noto Sans TC", sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    font-variant-numeric: tabular-nums;
 }
 
 .home-swatch-grid {
@@ -2783,126 +2887,153 @@ body {
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
-    gap: 0.55rem;
+    grid-template-columns: repeat(auto-fill, minmax(7.25rem, 1fr));
+    gap: 0.65rem;
+}
+
+.home-swatch-grid > li {
+    animation: home-rise 0.75s cubic-bezier(0.32, 0.72, 0, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 28ms);
 }
 
 .home-swatch {
     appearance: none;
     -webkit-appearance: none;
     width: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.15rem;
     margin: 0;
-    padding: 1.15rem 0.55rem 0.75rem;
-    min-height: 5.5rem;
+    padding: 1rem 0.75rem 0.85rem;
+    min-height: 6.25rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.2rem;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0.55rem;
     cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
     transition:
-        transform var(--dur-hover) var(--ease-out-expo),
-        box-shadow var(--dur-hover) var(--ease-sumi);
+        transform 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.home-swatch-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.35rem;
+}
+
+.home-swatch-go {
+    opacity: 0;
+    transform: translate(-2px, 2px);
+    transition:
+        opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+        transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @media (hover: hover) {
     .home-swatch:hover {
-        transform: translateY(var(--lift-md));
-        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+        transform: translateY(-4px);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            0 18px 40px rgba(0, 0, 0, 0.28);
         z-index: 1;
+    }
+
+    .home-swatch:hover .home-swatch-go {
+        opacity: 0.85;
+        transform: translate(0, 0);
     }
 }
 
 .home-swatch:active {
-    transform: scale(var(--press-scale));
+    transform: scale(0.985);
 }
 
 .home-swatch-name {
     font-family: "LXGW WenKai TC", serif;
-    font-size: 0.92rem;
-    letter-spacing: 0.12em;
+    font-size: 1rem;
+    letter-spacing: 0.14em;
 }
 
 .home-swatch-hex {
     font-family: "Outfit", "Noto Sans TC", sans-serif;
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
-    opacity: 0.7;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    opacity: 0.68;
     font-variant-numeric: tabular-nums;
 }
 
 .home-empty {
-    margin: 2.5rem 0 0;
+    margin: 3rem 0 0;
     text-align: center;
     font-family: "Outfit", "Noto Sans TC", sans-serif;
     font-size: 0.9rem;
-    opacity: 0.55;
+    opacity: 0.5;
 }
 
 @media (min-width: 960px) {
-    .home-hero {
-        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
-        align-items: center;
-        gap: 3rem;
-        padding: 7rem 2.5rem calc(var(--drawer-peek) + 3rem);
-        max-width: 1200px;
-        margin: 0 auto;
+    .home-mosaic {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        grid-auto-rows: minmax(7.5vh, 1fr);
+        gap: 0.28rem;
+        padding: 0.28rem;
     }
 
     .home-hero-copy {
-        max-width: 26rem;
-        padding-bottom: 1rem;
+        max-width: 32rem;
+        padding: 0 0 7.5rem 3.25rem;
+        margin-top: auto;
     }
 
     .home-brand {
-        letter-spacing: 0.38em;
-        text-indent: 0.38em;
+        letter-spacing: 0.34em;
+        text-indent: 0.34em;
     }
 
-    .home-mosaic {
-        grid-template-columns: repeat(10, minmax(0, 1fr));
-        max-width: none;
-        gap: 0.4rem;
-        border-radius: 1.5rem;
-    }
-
-    .home-mosaic-label {
-        font-size: 0.58rem;
-    }
-
-    .home-preview-name {
-        right: 2.5rem;
-        font-size: 1.15rem;
+    .home-preview {
+        left: auto;
+        right: 3rem;
+        bottom: calc(var(--drawer-peek) + 1.35rem);
+        justify-content: flex-end;
+        text-align: right;
     }
 
     .home-gallery {
-        padding: 3.5rem 2.5rem calc(var(--drawer-peek) + 4rem);
+        padding: 7.5rem 3rem calc(var(--drawer-peek) + 5rem);
     }
 
     .home-gallery-tools {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
+        gap: 2rem;
     }
 
     .home-swatch-grid {
-        grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
-        gap: 0.7rem;
+        grid-template-columns: repeat(auto-fill, minmax(8.25rem, 1fr));
+        gap: 0.85rem;
     }
 }
 
 @media (max-width: 767px) {
     .home-mosaic {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-auto-rows: minmax(18vw, 1fr);
     }
 
-    .home-preview-name {
-        left: 1.25rem;
-        right: auto;
-        bottom: calc(var(--drawer-peek) + 0.75rem);
-        font-size: 0.92rem;
+    .home-mosaic-cell--lg {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+
+    .home-hero-copy {
+        padding: 4.5rem 1.2rem 7rem;
+    }
+
+    .home-preview {
+        bottom: calc(var(--drawer-peek) + 0.85rem);
     }
 
     .app-container--home .main--home {
@@ -2915,7 +3046,12 @@ body {
         transition: none;
     }
 
-    .home-preview-name {
-        animation: none;
+    .home-mosaic-cell,
+    .home-hero-copy > *,
+    .home-swatch-grid > li,
+    .home-preview-name,
+    .home-gallery-intro {
+        animation: none !important;
+        filter: none !important;
     }
 }

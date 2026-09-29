@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { Sunrise, Shuffle, Search } from 'lucide-react';
+import React, { useMemo, useState, useCallback, CSSProperties } from 'react';
+import { Sunrise, Shuffle, Search, ArrowUpRight } from 'lucide-react';
 import { ColorData } from '../data/colors';
 import {
     COLORS_WITH_META,
@@ -19,6 +19,9 @@ const HUES = [
     { id: 'neutral', label: '灰' },
 ] as const;
 
+/** Indices that expand into 2×2 mosaic tiles for bento rhythm. */
+const FEATURED_SPANS = new Set([2, 11, 24, 33, 41]);
+
 interface ColorHomeProps {
     onSelectColor: (color: ColorData) => void;
     onTodayColor: () => void;
@@ -29,7 +32,6 @@ function normalizeQuery(value: string): string {
     return value.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, '');
 }
 
-/** Even sample across the 250 colors for a balanced mosaic field. */
 function pickMosaicColors(count: number): ColorWithMeta[] {
     const total = COLORS_WITH_META.length;
     if (count >= total) {
@@ -52,7 +54,7 @@ export const ColorHome: React.FC<ColorHomeProps> = ({
     const [query, setQuery] = useState('');
     const [preview, setPreview] = useState<ColorWithMeta | null>(null);
 
-    const mosaicColors = useMemo(() => pickMosaicColors(60), []);
+    const mosaicColors = useMemo(() => pickMosaicColors(48), []);
 
     const galleryColors = useMemo(() => {
         const normalized = normalizeQuery(query);
@@ -74,7 +76,7 @@ export const ColorHome: React.FC<ColorHomeProps> = ({
 
     const clearPreview = useCallback(() => setPreview(null), []);
 
-    const ambientHex = preview?.hex ?? '#1a1f28';
+    const ambientHex = preview?.hex ?? '#141820';
 
     return (
         <div className="color-home">
@@ -83,9 +85,46 @@ export const ColorHome: React.FC<ColorHomeProps> = ({
                 style={{ backgroundColor: ambientHex }}
                 aria-hidden="true"
             />
-            <div className="home-ambient-veil" aria-hidden="true" />
+            <div className="home-grain" aria-hidden="true" />
 
             <section className="home-hero" aria-labelledby="home-brand">
+                <div
+                    className="home-mosaic"
+                    role="list"
+                    aria-label="精選傳統色，點選進入"
+                    onMouseLeave={clearPreview}
+                >
+                    {mosaicColors.map((color, index) => {
+                        const isFeatured = FEATURED_SPANS.has(index);
+                        return (
+                            <button
+                                key={color.name}
+                                type="button"
+                                role="listitem"
+                                className={`home-mosaic-cell ${isFeatured ? 'home-mosaic-cell--lg' : ''}`}
+                                style={{
+                                    backgroundColor: color.hex,
+                                    ['--i' as string]: index,
+                                } as CSSProperties}
+                                aria-label={`${color.nameTW} ${color.hex}`}
+                                onMouseEnter={() => setPreview(color)}
+                                onFocus={() => setPreview(color)}
+                                onBlur={clearPreview}
+                                onClick={() => onSelectColor(color)}
+                            >
+                                <span
+                                    className="home-mosaic-label"
+                                    style={getColorTextStyle(color.useDarkText)}
+                                >
+                                    {color.nameTW}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <div className="home-hero-scrim" aria-hidden="true" />
+
                 <div className="home-hero-copy">
                     <p id="home-brand" className="home-brand">雅色</p>
                     <h1 className="home-headline">選擇一抹傳統色</h1>
@@ -98,76 +137,63 @@ export const ColorHome: React.FC<ColorHomeProps> = ({
                             className="home-cta home-cta--primary"
                             onClick={onTodayColor}
                         >
-                            <Sunrise size={16} strokeWidth={1.5} aria-hidden="true" />
-                            今日之色
+                            <span>今日之色</span>
+                            <span className="home-cta-icon" aria-hidden="true">
+                                <Sunrise size={15} strokeWidth={1.5} />
+                            </span>
                         </button>
                         <button
                             type="button"
                             className="home-cta home-cta--ghost"
                             onClick={onRandomColor}
                         >
-                            <Shuffle size={16} strokeWidth={1.5} aria-hidden="true" />
-                            隨機一色
+                            <span>隨機一色</span>
+                            <span className="home-cta-icon" aria-hidden="true">
+                                <Shuffle size={15} strokeWidth={1.5} />
+                            </span>
                         </button>
                     </div>
                 </div>
 
-                <div
-                    className="home-mosaic"
-                    role="list"
-                    aria-label="精選傳統色，點選進入"
-                    onMouseLeave={clearPreview}
-                >
-                    {mosaicColors.map((color) => (
-                        <button
-                            key={color.name}
-                            type="button"
-                            role="listitem"
-                            className="home-mosaic-cell"
-                            style={{ backgroundColor: color.hex }}
-                            aria-label={`${color.nameTW} ${color.hex}`}
-                            onMouseEnter={() => setPreview(color)}
-                            onFocus={() => setPreview(color)}
-                            onBlur={clearPreview}
-                            onClick={() => onSelectColor(color)}
-                        >
-                            <span
-                                className="home-mosaic-label"
-                                style={getColorTextStyle(color.useDarkText)}
-                            >
-                                {color.nameTW}
+                <div className="home-preview" aria-live="polite">
+                    {preview ? (
+                        <>
+                            <span className="home-preview-name">{preview.nameTW}</span>
+                            <span className="home-preview-meta">
+                                {preview.nameJA}
+                                <span className="home-preview-sep" aria-hidden="true">/</span>
+                                {preview.hex}
                             </span>
-                        </button>
-                    ))}
+                        </>
+                    ) : (
+                        <span className="home-preview-hint">滑過色塊預覽 · 點選進入</span>
+                    )}
                 </div>
-
-                {preview && (
-                    <p className="home-preview-name" aria-live="polite">
-                        {preview.nameTW}
-                        <span className="home-preview-hex">{preview.hex}</span>
-                    </p>
-                )}
             </section>
 
             <section className="home-gallery" aria-labelledby="home-gallery-title">
-                <div className="home-gallery-head">
+                <div className="home-gallery-intro">
                     <h2 id="home-gallery-title" className="home-gallery-title">
                         全部色票
                     </h2>
-                    <p className="home-gallery-count">{galleryColors.length} 色</p>
+                    <p className="home-gallery-lead">
+                        依色相瀏覽，或搜尋繁中色名、日文與拼音。
+                    </p>
                 </div>
 
                 <div className="home-gallery-tools">
-                    <div className="home-search">
-                        <Search size={16} strokeWidth={1.5} className="home-search-icon" aria-hidden="true" />
-                        <input
-                            type="search"
-                            className="home-search-input"
-                            placeholder="搜尋色名、拼音或色碼"
-                            value={query}
-                            onChange={(event) => setQuery(event.target.value)}
-                            aria-label="搜尋傳統色"
-                        />
+                    <div className="home-search-shell">
+                        <div className="home-search">
+                            <Search size={16} strokeWidth={1.5} className="home-search-icon" aria-hidden="true" />
+                            <input
+                                type="search"
+                                className="home-search-input"
+                                placeholder="搜尋色名、拼音或色碼"
+                                value={query}
+                                onChange={(event) => setQuery(event.target.value)}
+                                aria-label="搜尋傳統色"
+                            />
+                        </div>
                     </div>
                     <div className="home-hues" role="group" aria-label="色相篩選">
                         {HUES.map((hue) => (
@@ -184,9 +210,14 @@ export const ColorHome: React.FC<ColorHomeProps> = ({
                     </div>
                 </div>
 
+                <p className="home-gallery-count">{galleryColors.length} 色</p>
+
                 <ul className="home-swatch-grid">
-                    {galleryColors.map((color) => (
-                        <li key={color.name}>
+                    {galleryColors.map((color, index) => (
+                        <li
+                            key={color.name}
+                            style={{ ['--i' as string]: Math.min(index, 24) } as CSSProperties}
+                        >
                             <button
                                 type="button"
                                 className="home-swatch"
@@ -194,11 +225,20 @@ export const ColorHome: React.FC<ColorHomeProps> = ({
                                 aria-label={`${color.nameTW} ${color.hex}`}
                                 onClick={() => onSelectColor(color)}
                             >
-                                <span
-                                    className="home-swatch-name"
-                                    style={getColorTextStyle(color.useDarkText)}
-                                >
-                                    {color.nameTW}
+                                <span className="home-swatch-top">
+                                    <span
+                                        className="home-swatch-name"
+                                        style={getColorTextStyle(color.useDarkText)}
+                                    >
+                                        {color.nameTW}
+                                    </span>
+                                    <span
+                                        className="home-swatch-go"
+                                        style={getColorTextStyle(color.useDarkText)}
+                                        aria-hidden="true"
+                                    >
+                                        <ArrowUpRight size={14} strokeWidth={1.5} />
+                                    </span>
                                 </span>
                                 <span
                                     className="home-swatch-hex"
