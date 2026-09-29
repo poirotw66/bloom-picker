@@ -166,7 +166,7 @@ export const ColorHome: React.FC<ColorHomeProps> = ({
                             </span>
                         </>
                     ) : (
-                        <span className="home-preview-hint">滑過色塊預覽 · 點選進入</span>
+                        <span className="home-preview-hint">點選色塊，進入色境</span>
                     )}
                 </div>
             </section>

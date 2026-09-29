@@ -186,15 +186,17 @@ const App: React.FC = () => {
                 </>
             )}
 
-            <FavoriteDrawer
-                favorites={favorites}
-                onSelectColor={handleSelectColor}
-                onRemoveFavorite={toggleFavorite}
-                onClear={clearFavorites}
-                onExportCSS={exportCSS}
-                onExportJSON={exportJSON}
-                onReorder={handleReorderFavorites}
-            />
+            {!isHome && (
+                <FavoriteDrawer
+                    favorites={favorites}
+                    onSelectColor={handleSelectColor}
+                    onRemoveFavorite={toggleFavorite}
+                    onClear={clearFavorites}
+                    onExportCSS={exportCSS}
+                    onExportJSON={exportJSON}
+                    onReorder={handleReorderFavorites}
+                />
+            )}
 
             {toast && (
                 <div
