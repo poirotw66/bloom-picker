@@ -3,6 +3,7 @@ import { TRADITIONAL_COLORS, ColorData } from './data/colors';
 import { COLOR_BY_NAME } from './utils/colorMeta';
 import { Header } from './components/Header';
 import { ColorDetail } from './components/ColorDetail';
+import { ColorHome } from './components/ColorHome';
 import { FavoriteDrawer } from './components/FavoriteDrawer';
 import { LeftEdgeRail } from './components/LeftEdgeRail';
 import { useFavorites } from './hooks/useFavorites';
@@ -16,21 +17,29 @@ const PaletteReco = lazy(() =>
 );
 const TOAST_VISIBLE_MS = 2000;
 const TOAST_EXIT_MS = 320;
+const HOME_THEME_HEX = '#1a1f28';
 
 interface ToastState {
     message: string;
     leaving: boolean;
 }
 
+function readHashColor(): ColorData | null {
+    const hash = window.location.hash.slice(1);
+    if (!hash) {
+        return null;
+    }
+    return COLOR_BY_NAME.get(hash) ?? null;
+}
+
 const App: React.FC = () => {
-    const [activeColor, setActiveColor] = useState<ColorData>(TRADITIONAL_COLORS[191]);
+    const [activeColor, setActiveColor] = useState<ColorData | null>(() => readHashColor());
     const { favorites, toggleFavorite, isFavorite, setFavorites } = useFavorites();
     const [toast, setToast] = useState<ToastState | null>(null);
     const toastTimers = useRef<number[]>([]);
     const isMobile = useIsMobile();
+    const isHome = activeColor === null;
 
-    // Timers are tracked so a rapid second copy cannot be cut short by the
-    // first toast's pending dismissal, and so the exit animation can play.
     const showToast = useCallback((message: string) => {
         toastTimers.current.forEach(window.clearTimeout);
         toastTimers.current = [
@@ -60,32 +69,21 @@ const App: React.FC = () => {
     });
 
     const themeTokens = useMemo(
-        () => computeThemeTokens(activeColor.hex),
-        [activeColor.hex],
+        () => computeThemeTokens(activeColor?.hex ?? HOME_THEME_HEX),
+        [activeColor?.hex],
     );
 
     useEffect(() => {
-        const applyHashColor = () => {
-            const hash = window.location.hash.slice(1);
-            if (!hash) {
-                return;
-            }
-            const found = COLOR_BY_NAME.get(hash);
-            if (found) {
-                setActiveColor(found);
-            }
+        const syncRouteFromLocation = () => {
+            setActiveColor(readHashColor());
         };
 
-        applyHashColor();
-
-        const handleHashChange = () => {
-            applyHashColor();
-        };
-
-        window.addEventListener('hashchange', handleHashChange);
-
+        syncRouteFromLocation();
+        window.addEventListener('hashchange', syncRouteFromLocation);
+        window.addEventListener('popstate', syncRouteFromLocation);
         return () => {
-            window.removeEventListener('hashchange', handleHashChange);
+            window.removeEventListener('hashchange', syncRouteFromLocation);
+            window.removeEventListener('popstate', syncRouteFromLocation);
         };
     }, []);
 
@@ -93,31 +91,36 @@ const App: React.FC = () => {
         if (activeColor) {
             document.title = `${activeColor.nameTW} · Bloom Picker`;
         } else {
-            document.title = 'Bloom Picker';
+            document.title = '雅色 · Bloom Picker';
         }
     }, [activeColor]);
 
     const handleSelectColor = useCallback((color: ColorData) => {
         setActiveColor(color);
         window.location.hash = color.name;
-        // An explicit `smooth` overrides the CSS reduced-motion override, so
-        // the preference has to be honoured here rather than in App.css.
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    }, []);
+
+    const handleGoHome = useCallback(() => {
+        setActiveColor(null);
+        if (window.location.hash) {
+            history.pushState(null, '', window.location.pathname + window.location.search);
+        }
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
     }, []);
 
     const handleRandomColor = useCallback(() => {
         const index = Math.floor(Math.random() * TRADITIONAL_COLORS.length);
-        const randomColor = TRADITIONAL_COLORS[index];
-        handleSelectColor(randomColor);
+        handleSelectColor(TRADITIONAL_COLORS[index]);
     }, [handleSelectColor]);
 
     const handleTodayColor = useCallback(() => {
         const now = new Date();
         const dayIndex = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
         const index = ((dayIndex % TRADITIONAL_COLORS.length) + TRADITIONAL_COLORS.length) % TRADITIONAL_COLORS.length;
-        const todayColor = TRADITIONAL_COLORS[index];
-        handleSelectColor(todayColor);
+        handleSelectColor(TRADITIONAL_COLORS[index]);
     }, [handleSelectColor]);
 
     const handleReorderFavorites = useCallback((names: string[]) => {
@@ -126,21 +129,36 @@ const App: React.FC = () => {
 
     return (
         <div
-            className={`app-container ${isMobile ? 'app-container--mobile' : 'app-container--desktop'}`}
+            className={`app-container ${isMobile ? 'app-container--mobile' : 'app-container--desktop'} ${isHome ? 'app-container--home' : 'app-container--detail'}`}
             style={themeTokens as React.CSSProperties}
         >
-            <div className="bg" style={{ backgroundColor: activeColor?.hex }} />
-            <div className="bg-overlay" aria-hidden="true" />
+            {!isHome && (
+                <>
+                    <div className="bg" style={{ backgroundColor: activeColor.hex }} />
+                    <div className="bg-overlay" aria-hidden="true" />
+                </>
+            )}
 
-            <Header
-                onRandomColor={handleRandomColor}
-                onTodayColor={handleTodayColor}
-            />
+            {!isHome && (
+                <Header
+                    onRandomColor={handleRandomColor}
+                    onTodayColor={handleTodayColor}
+                    onGoHome={handleGoHome}
+                />
+            )}
 
-            <main className="main">
-                <div className="content-area">
-                    {activeColor && (
-                        <>
+            {isHome ? (
+                <main className="main main--home">
+                    <ColorHome
+                        onSelectColor={handleSelectColor}
+                        onTodayColor={handleTodayColor}
+                        onRandomColor={handleRandomColor}
+                    />
+                </main>
+            ) : (
+                <>
+                    <main className="main">
+                        <div className="content-area">
                             <ColorDetail
                                 color={activeColor}
                                 onShowToast={showToast}
@@ -155,28 +173,30 @@ const App: React.FC = () => {
                                     onShowToast={showToast}
                                 />
                             </Suspense>
-                        </>
-                    )}
-                </div>
-            </main>
+                        </div>
+                    </main>
 
-            <LeftEdgeRail
-                onSelectColor={handleSelectColor}
-                activeColor={activeColor}
-                onToggleFavorite={toggleFavorite}
-                isFavorite={isFavorite}
-                colorCount={TRADITIONAL_COLORS.length}
-            />
+                    <LeftEdgeRail
+                        onSelectColor={handleSelectColor}
+                        activeColor={activeColor}
+                        onToggleFavorite={toggleFavorite}
+                        isFavorite={isFavorite}
+                        colorCount={TRADITIONAL_COLORS.length}
+                    />
+                </>
+            )}
 
-            <FavoriteDrawer
-                favorites={favorites}
-                onSelectColor={handleSelectColor}
-                onRemoveFavorite={toggleFavorite}
-                onClear={clearFavorites}
-                onExportCSS={exportCSS}
-                onExportJSON={exportJSON}
-                onReorder={handleReorderFavorites}
-            />
+            {!isHome && (
+                <FavoriteDrawer
+                    favorites={favorites}
+                    onSelectColor={handleSelectColor}
+                    onRemoveFavorite={toggleFavorite}
+                    onClear={clearFavorites}
+                    onExportCSS={exportCSS}
+                    onExportJSON={exportJSON}
+                    onReorder={handleReorderFavorites}
+                />
+            )}
 
             {toast && (
                 <div
