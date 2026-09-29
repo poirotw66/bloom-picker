@@ -61,4 +61,4 @@ function U(e){return e&&e.__esModule&&Object.prototype.hasOwnProperty.call(e,"de
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */const pe=p("X",[["path",{d:"M18 6 6 18",key:"1bl5f8"}],["path",{d:"m6 6 12 12",key:"d8bk6v"}]]);export{oe as C,ce as D,se as H,ie as P,ne as R,fe as S,pe as X,ae as a,ue as b,le as c,k as r};
+ */const pe=p("X",[["path",{d:"M18 6 6 18",key:"1bl5f8"}],["path",{d:"m6 6 12 12",key:"d8bk6v"}]]);export{oe as C,ce as D,se as H,ie as P,ne as R,fe as S,pe as X,ae as a,le as b,ue as c,k as r};
